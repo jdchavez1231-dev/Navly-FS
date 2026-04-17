@@ -2,11 +2,13 @@ import { useNavigate } from 'react-router-dom'
 import { AlertTriangle, CheckCircle, Clock, MinusCircle, CalendarDays } from 'lucide-react'
 import { useTracker } from '../hooks/useTracker'
 import { useFacility } from '../hooks/useFacility'
+import { useCorrectiveActions } from '../hooks/useCorrectiveActions'
 import { BRCGS_SECTIONS, getAllStats, getSectionStats } from '../data/brcgs'
 
 export default function Dashboard() {
   const { data, loading } = useTracker()
   const { facility } = useFacility()
+  const { stats: caStats, actions } = useCorrectiveActions()
   const navigate = useNavigate()
 
   const daysToAudit = facility?.audit_date
@@ -98,6 +100,31 @@ export default function Dashboard() {
                   <span className="font-mono font-semibold">{c.id}</span>
                   <span>{c.title}</span>
                 </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Corrective actions summary */}
+        {actions.length > 0 && (
+          <div className="mb-8 bg-white border border-gray-200 rounded-xl overflow-hidden">
+            <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+              <h2 className="text-sm font-semibold text-gray-900">Corrective Actions</h2>
+              <button onClick={() => navigate('/corrective-actions')} className="text-xs text-blue-600 hover:underline">
+                View all →
+              </button>
+            </div>
+            <div className="grid grid-cols-4 divide-x divide-gray-100">
+              {[
+                { label: 'Open', value: caStats.open, color: 'text-red-600' },
+                { label: 'In Progress', value: caStats.in_progress, color: 'text-amber-600' },
+                { label: 'Overdue', value: caStats.overdue, color: caStats.overdue > 0 ? 'text-red-700 font-bold' : 'text-gray-400' },
+                { label: 'Closed', value: caStats.closed, color: 'text-green-600' },
+              ].map(item => (
+                <div key={item.label} className="px-5 py-4 text-center">
+                  <div className={`text-2xl font-semibold ${item.color}`}>{item.value}</div>
+                  <div className="text-xs text-gray-400 mt-0.5">{item.label}</div>
+                </div>
               ))}
             </div>
           </div>

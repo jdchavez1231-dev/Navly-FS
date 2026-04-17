@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect } from 'react'
 import { Mic, MicOff, Upload, X, Loader2, Send, Bot, Video, File } from 'lucide-react'
 import { supabase } from '../lib/supabase'
-import type { BrcgsClause, ClauseRecord, EvidenceItem } from '../types'
+import { CorrectiveActionCard } from './CorrectiveActionCard'
+import type { BrcgsClause, ClauseRecord, EvidenceItem, CorrectiveAction } from '../types'
 
 type Message = { role: 'user' | 'assistant'; content: string }
 
@@ -12,6 +13,8 @@ interface Props {
   onUpdateNotes: (notes: string) => void
   onAddEvidence: (item: EvidenceItem) => void
   onRemoveEvidence: (url: string) => void
+  correctiveAction?: CorrectiveAction
+  onUpdateCA?: (id: string, patch: Partial<CorrectiveAction>) => void
 }
 
 const SUGGESTED_QUESTIONS = [
@@ -27,6 +30,8 @@ export function ClausePanel({
   onUpdateNotes,
   onAddEvidence,
   onRemoveEvidence,
+  correctiveAction,
+  onUpdateCA,
 }: Props) {
   const [activeTab, setActiveTab] = useState<'notes' | 'evidence' | 'ai'>('notes')
 
@@ -229,6 +234,11 @@ Give practical, specific, actionable guidance. Be concise. Focus on what the fac
                 year: 'numeric',
               })}
             </p>
+          )}
+
+          {/* Corrective action card — shown when status is gap */}
+          {correctiveAction && onUpdateCA && (
+            <CorrectiveActionCard action={correctiveAction} onUpdate={onUpdateCA} />
           )}
         </div>
       )}

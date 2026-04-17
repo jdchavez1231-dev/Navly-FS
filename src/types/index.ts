@@ -36,3 +36,31 @@ export interface SectionStats {
   compliant: number
   gaps: number
 }
+
+export type CAStatus = 'open' | 'in_progress' | 'closed' | 'verified'
+
+export interface CorrectiveAction {
+  id: string
+  facility_id: string
+  checklist_id: string
+  element_code: string
+  element_name: string
+  severity: Rating
+  status: CAStatus
+  identified_at: string
+  // quick fields
+  assigned_to: string
+  due_date: string | null
+  description: string
+  // full CAPA fields
+  immediate_action: string
+  root_cause: string
+  corrective_action: string
+  preventive_action: string
+  verification_method: string
+  verified_by: string
+  verified_at: string | null
+  closed_at: string | null
+  created_at: string
+  updated_at: string
+}

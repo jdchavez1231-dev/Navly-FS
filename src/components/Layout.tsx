@@ -1,5 +1,5 @@
 import { NavLink, Outlet } from 'react-router-dom'
-import { LayoutDashboard, ClipboardCheck, FolderOpen, Settings, LogOut } from 'lucide-react'
+import { LayoutDashboard, ClipboardCheck, FolderOpen, Settings, LogOut, AlertTriangle } from 'lucide-react'
 import { useAuth } from '../lib/AuthContext'
 import { useFacility } from '../hooks/useFacility'
 
@@ -36,6 +36,10 @@ export default function Layout() {
           <NavLink to="/sop-library" className={linkClass}>
             <FolderOpen className="w-4 h-4" />
             SOP Library
+          </NavLink>
+          <NavLink to="/corrective-actions" className={linkClass}>
+            <AlertTriangle className="w-4 h-4" />
+            Corrective Actions
           </NavLink>
           <NavLink to="/settings" className={linkClass}>
             <Settings className="w-4 h-4" />

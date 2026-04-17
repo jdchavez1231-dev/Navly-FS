@@ -9,6 +9,7 @@ import Tracker from './pages/Tracker'
 import SOPLibrary from './pages/SOPLibrary'
 import GapReport from './pages/GapReport'
 import Settings from './pages/Settings'
+import CorrectiveActions from './pages/CorrectiveActions'
 
 export default function App() {
   return (
@@ -38,6 +39,7 @@ export default function App() {
           <Route path="tracker/:sectionId" element={<Tracker />} />
           <Route path="sop-library" element={<SOPLibrary />} />
           <Route path="gap-report/:reportId" element={<GapReport />} />
+          <Route path="corrective-actions" element={<CorrectiveActions />} />
           <Route path="settings" element={<Settings />} />
         </Route>
       </Routes>

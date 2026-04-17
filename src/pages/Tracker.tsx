@@ -1,19 +1,32 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { ChevronDown } from 'lucide-react'
 import { useTracker } from '../hooks/useTracker'
+import { useCorrectiveActions } from '../hooks/useCorrectiveActions'
 import { useFacility } from '../hooks/useFacility'
 import { BRCGS_SECTIONS, getSectionStats } from '../data/brcgs'
 import { StatusSelect } from '../components/StatusBadge'
 import { RatingBadge } from '../components/RatingBadge'
 import { ClausePanel } from '../components/ClausePanel'
-import type { Status, EvidenceItem } from '../types'
+import type { Status, EvidenceItem, Rating } from '../types'
 
 export default function Tracker() {
   const { sectionId } = useParams<{ sectionId: string }>()
   const navigate = useNavigate()
-  const { data, updateClause, loading } = useTracker()
   const { facilityId } = useFacility()
+
+  const { createAction, updateAction, getByClause } = useCorrectiveActions()
+
+  const onGapDetected = useCallback((params: {
+    checklistId: string
+    elementCode: string
+    elementName: string
+    severity: Rating
+  }) => {
+    createAction(params)
+  }, [createAction])
+
+  const { data, updateClause, loading } = useTracker(onGapDetected)
 
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const activeSectionId = sectionId ?? '1'
@@ -91,11 +104,14 @@ export default function Tracker() {
                 const record = data[clause.id]
                 const status = (record?.status ?? 'not_assessed') as Status
                 const isExpanded = expandedId === clause.id
+                const ca = getByClause(clause.id)
 
                 return (
                   <div
                     key={clause.id}
-                    className="bg-white border border-gray-200 rounded-lg overflow-hidden"
+                    className={`bg-white border rounded-lg overflow-hidden ${
+                      status === 'gap' ? 'border-orange-200' : 'border-gray-200'
+                    }`}
                   >
                     <div
                       className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-gray-50 transition-colors"
@@ -108,6 +124,9 @@ export default function Tracker() {
                       <span className="flex-1 text-sm font-medium text-gray-900 min-w-0">
                         {clause.title}
                       </span>
+                      {ca && !isExpanded && (
+                        <span className="text-xs text-orange-600 font-medium shrink-0">CA {ca.status.replace('_', ' ')}</span>
+                      )}
                       <StatusSelect
                         value={status}
                         onChange={s => updateClause(clause.id, { status: s })}
@@ -131,6 +150,8 @@ export default function Tracker() {
                             evidence: (record?.evidence ?? []).filter(e => e.url !== url),
                           })
                         }
+                        correctiveAction={ca}
+                        onUpdateCA={updateAction}
                       />
                     )}
                   </div>

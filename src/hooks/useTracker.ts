@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 import { BRCGS_SECTIONS } from '../data/brcgs'
 import { useFacility } from './useFacility'
-import type { Status, TrackerData, EvidenceItem } from '../types'
+import type { Status, TrackerData, EvidenceItem, Rating } from '../types'
 
 const STANDARD = 'BRCGS'
 
@@ -15,7 +15,15 @@ type Row = {
   evidence: EvidenceItem[] | null
 }
 
-export function useTracker() {
+// Passed in from outside so useTracker doesn't depend on useCorrectiveActions (avoids circular hooks)
+type OnGapDetected = (params: {
+  checklistId: string
+  elementCode: string
+  elementName: string
+  severity: Rating
+}) => void
+
+export function useTracker(onGapDetected?: OnGapDetected) {
   const { facilityId, loading: facilityLoading } = useFacility()
   const [data, setData] = useState<TrackerData>({})
   const [rowIds, setRowIds] = useState<Record<string, string>>({})
@@ -101,8 +109,21 @@ export function useTracker() {
         .from('checklists')
         .update({ ...patch, updated_at: new Date().toISOString() })
         .eq('id', rowId)
+
+      // Auto-create corrective action when status changes to gap
+      if (patch.status === 'gap' && onGapDetected) {
+        const clause = BRCGS_SECTIONS.flatMap(s => s.clauses).find(c => c.id === id)
+        if (clause) {
+          onGapDetected({
+            checklistId: rowId,
+            elementCode: id,
+            elementName: clause.title,
+            severity: clause.rating,
+          })
+        }
+      }
     },
-    [rowIds]
+    [rowIds, onGapDetected]
   )
 
   return { data, updateClause, loading }
