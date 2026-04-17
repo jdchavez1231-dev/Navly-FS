@@ -55,6 +55,8 @@ export function useCorrectiveActions() {
         assigned_to: '',
         due_date: null,
         description: '',
+        rca_framework: 'narrative',
+        rca_data: {},
         immediate_action: '',
         root_cause: '',
         corrective_action: '',

@@ -38,6 +38,18 @@ export interface SectionStats {
 }
 
 export type CAStatus = 'open' | 'in_progress' | 'closed' | 'verified'
+export type RCAFramework = 'narrative' | '5_whys' | 'fishbone'
+
+export interface FiveWhysData {
+  why1: string; why2: string; why3: string; why4: string; why5: string
+}
+
+export interface FishboneData {
+  man: string; machine: string; method: string
+  material: string; environment: string; measurement: string
+}
+
+export type RCAData = FiveWhysData | FishboneData | Record<string, never>
 
 export interface CorrectiveAction {
   id: string
@@ -53,6 +65,8 @@ export interface CorrectiveAction {
   due_date: string | null
   description: string
   // full CAPA fields
+  rca_framework: RCAFramework
+  rca_data: RCAData
   immediate_action: string
   root_cause: string
   corrective_action: string
