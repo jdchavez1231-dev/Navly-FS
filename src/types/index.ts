@@ -14,10 +14,18 @@ export interface BrcgsSection {
   clauses: BrcgsClause[]
 }
 
+export interface EvidenceItem {
+  url: string
+  name: string
+  type: 'image' | 'video' | 'file'
+  createdAt: string
+}
+
 export interface ClauseRecord {
   status: Status
   notes: string
   updatedAt: string
+  evidence?: EvidenceItem[]
 }
 
 export type TrackerData = Record<string, ClauseRecord>

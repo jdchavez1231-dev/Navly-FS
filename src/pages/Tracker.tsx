@@ -2,15 +2,18 @@ import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { ChevronDown } from 'lucide-react'
 import { useTracker } from '../hooks/useTracker'
+import { useFacility } from '../hooks/useFacility'
 import { BRCGS_SECTIONS, getSectionStats } from '../data/brcgs'
 import { StatusSelect } from '../components/StatusBadge'
 import { RatingBadge } from '../components/RatingBadge'
-import type { Status } from '../types'
+import { ClausePanel } from '../components/ClausePanel'
+import type { Status, EvidenceItem } from '../types'
 
 export default function Tracker() {
   const { sectionId } = useParams<{ sectionId: string }>()
   const navigate = useNavigate()
   const { data, updateClause, loading } = useTracker()
+  const { facilityId } = useFacility()
 
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const activeSectionId = sectionId ?? '1'
@@ -115,25 +118,20 @@ export default function Tracker() {
                     </div>
 
                     {isExpanded && (
-                      <div className="px-4 pb-4 border-t border-gray-100">
-                        <p className="text-sm text-gray-600 mt-3 mb-3 leading-relaxed">
-                          {clause.description}
-                        </p>
-                        <textarea
-                          placeholder="Notes, evidence references, action items, responsible person…"
-                          value={record?.notes ?? ''}
-                          onChange={e => updateClause(clause.id, { notes: e.target.value })}
-                          className="w-full text-sm border border-gray-200 rounded-md p-2.5 resize-none focus:outline-none focus:ring-1 focus:ring-blue-500 bg-gray-50"
-                          rows={3}
-                        />
-                        {record?.updatedAt && (
-                          <p className="text-xs text-gray-400 mt-1">
-                            Last updated {new Date(record.updatedAt).toLocaleDateString('en-US', {
-                              month: 'short', day: 'numeric', year: 'numeric'
-                            })}
-                          </p>
-                        )}
-                      </div>
+                      <ClausePanel
+                        clause={clause}
+                        record={record ?? { status: 'not_assessed', notes: '', updatedAt: '', evidence: [] }}
+                        facilityId={facilityId ?? ''}
+                        onUpdateNotes={notes => updateClause(clause.id, { notes })}
+                        onAddEvidence={(item: EvidenceItem) =>
+                          updateClause(clause.id, { evidence: [...(record?.evidence ?? []), item] })
+                        }
+                        onRemoveEvidence={(url: string) =>
+                          updateClause(clause.id, {
+                            evidence: (record?.evidence ?? []).filter(e => e.url !== url),
+                          })
+                        }
+                      />
                     )}
                   </div>
                 )
