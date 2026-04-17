@@ -129,7 +129,10 @@ export default function Tracker() {
                       )}
                       <StatusSelect
                         value={status}
-                        onChange={s => updateClause(clause.id, { status: s })}
+                        onChange={s => {
+                          updateClause(clause.id, { status: s })
+                          if (s === 'gap') setExpandedId(clause.id)
+                        }}
                       />
                       <ChevronDown
                         className={`w-4 h-4 text-gray-400 shrink-0 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
