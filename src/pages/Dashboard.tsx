@@ -1,11 +1,17 @@
 import { useNavigate } from 'react-router-dom'
-import { AlertTriangle, CheckCircle, Clock, MinusCircle } from 'lucide-react'
+import { AlertTriangle, CheckCircle, Clock, MinusCircle, CalendarDays } from 'lucide-react'
 import { useTracker } from '../hooks/useTracker'
+import { useFacility } from '../hooks/useFacility'
 import { BRCGS_SECTIONS, getAllStats, getSectionStats } from '../data/brcgs'
 
 export default function Dashboard() {
   const { data, loading } = useTracker()
+  const { facility } = useFacility()
   const navigate = useNavigate()
+
+  const daysToAudit = facility?.audit_date
+    ? Math.ceil((new Date(facility.audit_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+    : null
 
   if (loading) {
     return (
@@ -33,7 +39,7 @@ export default function Dashboard() {
         </div>
 
         {/* Score + stat cards */}
-        <div className="grid grid-cols-4 gap-4 mb-8">
+        <div className={`grid gap-4 mb-8 ${daysToAudit !== null && daysToAudit >= 0 ? 'grid-cols-5' : 'grid-cols-4'}`}>
           <div className="col-span-1 bg-white border border-gray-200 rounded-xl p-5 flex flex-col items-center justify-center">
             <div className="text-4xl font-bold text-gray-900">{score}%</div>
             <div className="text-xs text-gray-500 mt-1 text-center">Compliance score</div>
@@ -61,6 +67,13 @@ export default function Dashboard() {
             total={stats.total}
             color="amber"
           />
+          {daysToAudit !== null && daysToAudit >= 0 && (
+            <div className="bg-white border border-gray-200 rounded-xl p-5 flex flex-col items-center justify-center col-span-1">
+              <CalendarDays className="w-5 h-5 text-blue-400 mb-1" />
+              <div className="text-2xl font-semibold text-gray-900">{daysToAudit}</div>
+              <div className="text-xs text-gray-500 mt-0.5">Days to audit</div>
+            </div>
+          )}
         </div>
 
         {/* Critical gaps alert */}
