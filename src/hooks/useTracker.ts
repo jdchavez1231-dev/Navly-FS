@@ -75,16 +75,16 @@ export function useTracker() {
   const updateClause = useCallback(
     async (id: string, patch: { status?: Status; notes?: string }) => {
       // Optimistic update
-      setData(prev => ({
-        ...prev,
-        [id]: {
-          status: prev[id]?.status ?? 'not_assessed',
-          notes: prev[id]?.notes ?? '',
-          ...prev[id],
-          ...patch,
+      setData(prev => {
+        const existing = prev[id]
+        const next: import('../types').ClauseRecord = {
+          status: existing?.status ?? 'not_assessed',
+          notes: existing?.notes ?? '',
           updatedAt: new Date().toISOString(),
-        },
-      }))
+          ...patch,
+        }
+        return { ...prev, [id]: next }
+      })
 
       const rowId = rowIds[id]
       if (!rowId) return

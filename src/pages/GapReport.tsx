@@ -4,14 +4,13 @@ import { ArrowLeft, Download, AlertTriangle, CheckCircle, FileText } from 'lucid
 import { supabase } from '../lib/supabase'
 import type { GapFinding } from '../lib/claudeApi'
 
+type SopDoc = { file_name: string; mapped_standard: string | null }
+
 type Report = {
   id: string
   generated_at: string
   gaps: GapFinding[]
-  sop_documents: {
-    file_name: string
-    mapped_standard: string | null
-  }
+  sop_documents: SopDoc
 }
 
 export default function GapReport() {
@@ -28,7 +27,11 @@ export default function GapReport() {
       .eq('id', reportId)
       .single()
       .then(({ data }) => {
-        setReport(data as Report)
+        if (data) {
+          const raw = data as Omit<Report, 'sop_documents'> & { sop_documents: SopDoc | SopDoc[] }
+          const sop = Array.isArray(raw.sop_documents) ? raw.sop_documents[0] : raw.sop_documents
+          setReport({ ...raw, sop_documents: sop })
+        }
         setLoading(false)
       })
   }, [reportId])
