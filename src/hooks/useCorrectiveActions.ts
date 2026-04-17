@@ -28,6 +28,7 @@ export function useCorrectiveActions() {
     elementCode: string
     elementName: string
     severity: Rating
+    description?: string
   }): Promise<CorrectiveAction | null> => {
     if (!facilityId) return null
 
@@ -54,7 +55,7 @@ export function useCorrectiveActions() {
         identified_at: new Date().toISOString(),
         assigned_to: '',
         due_date: null,
-        description: '',
+        description: params.description ?? '',
         rca_framework: 'narrative',
         rca_data: {},
         immediate_action: '',

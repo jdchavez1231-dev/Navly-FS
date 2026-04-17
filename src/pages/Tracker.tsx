@@ -22,6 +22,7 @@ export default function Tracker() {
     elementCode: string
     elementName: string
     severity: Rating
+    description?: string
   }) => {
     createAction(params)
   }, [createAction])

@@ -21,6 +21,7 @@ type OnGapDetected = (params: {
   elementCode: string
   elementName: string
   severity: Rating
+  description?: string
 }) => void
 
 export function useTracker(onGapDetected?: OnGapDetected) {
@@ -113,12 +114,15 @@ export function useTracker(onGapDetected?: OnGapDetected) {
       // Auto-create corrective action when status changes to gap
       if (patch.status === 'gap' && onGapDetected) {
         const clause = BRCGS_SECTIONS.flatMap(s => s.clauses).find(c => c.id === id)
+        // Grab latest notes — either from the patch or from existing state
+        const currentNotes = patch.notes ?? data[id]?.notes ?? ''
         if (clause) {
           onGapDetected({
             checklistId: rowId,
             elementCode: id,
             elementName: clause.title,
             severity: clause.rating,
+            description: currentNotes,
           })
         }
       }
