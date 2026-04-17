@@ -1,5 +1,5 @@
 import { NavLink, Outlet } from 'react-router-dom'
-import { LayoutDashboard, ClipboardCheck, FolderOpen } from 'lucide-react'
+import { LayoutDashboard, ClipboardCheck, FolderOpen, Settings } from 'lucide-react'
 
 export default function Layout() {
   const linkClass = ({ isActive }: { isActive: boolean }) =>
@@ -28,6 +28,10 @@ export default function Layout() {
           <NavLink to="/sop-library" className={linkClass}>
             <FolderOpen className="w-4 h-4" />
             SOP Library
+          </NavLink>
+          <NavLink to="/settings" className={linkClass}>
+            <Settings className="w-4 h-4" />
+            Settings
           </NavLink>
         </nav>
         <div className="p-4 border-t border-gray-200">
