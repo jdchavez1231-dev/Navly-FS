@@ -13,6 +13,14 @@ type Facility = {
   active_standard: string
   audit_date: string | null
   subscription_status: string
+  address: string
+  city: string
+  state: string
+  country: string
+  postal_code: string
+  contact_name: string
+  contact_email: string
+  contact_phone: string
 }
 
 type TeamMember = {
@@ -38,7 +46,19 @@ function FacilityTab({ facilityId }: { facilityId: string }) {
       .select('*')
       .eq('id', facilityId)
       .single()
-      .then(({ data }) => { if (data) setForm(data as Facility) })
+      .then(({ data }) => {
+        if (data) setForm({
+          ...(data as Facility),
+          address: (data as any).address ?? '',
+          city: (data as any).city ?? '',
+          state: (data as any).state ?? '',
+          country: (data as any).country ?? '',
+          postal_code: (data as any).postal_code ?? '',
+          contact_name: (data as any).contact_name ?? '',
+          contact_email: (data as any).contact_email ?? '',
+          contact_phone: (data as any).contact_phone ?? '',
+        })
+      })
   }, [facilityId])
 
   function handleStandardChange(val: string) {
@@ -64,6 +84,14 @@ function FacilityTab({ facilityId }: { facilityId: string }) {
         regulatory_body: form.regulatory_body,
         active_standard: form.active_standard,
         audit_date: form.audit_date || null,
+        address: form.address,
+        city: form.city,
+        state: form.state,
+        country: form.country,
+        postal_code: form.postal_code,
+        contact_name: form.contact_name,
+        contact_email: form.contact_email,
+        contact_phone: form.contact_phone,
       })
       .eq('id', facilityId)
     setSaving(false)
@@ -126,6 +154,32 @@ function FacilityTab({ facilityId }: { facilityId: string }) {
         />
       </div>
 
+      <div className="border-t border-gray-100 pt-5">
+        <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-4">Address</p>
+        <div className="space-y-4">
+          <Field label="Street address" value={form.address} onChange={v => setForm({ ...form, address: v })} placeholder="123 Main St" />
+          <div className="grid grid-cols-2 gap-3">
+            <Field label="City" value={form.city} onChange={v => setForm({ ...form, city: v })} placeholder="City" />
+            <Field label="State / Province" value={form.state} onChange={v => setForm({ ...form, state: v })} placeholder="State" />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <Field label="Country" value={form.country} onChange={v => setForm({ ...form, country: v })} placeholder="Country" />
+            <Field label="Postal code" value={form.postal_code} onChange={v => setForm({ ...form, postal_code: v })} placeholder="ZIP / Postal" />
+          </div>
+        </div>
+      </div>
+
+      <div className="border-t border-gray-100 pt-5">
+        <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-4">Primary Contact</p>
+        <div className="space-y-4">
+          <Field label="Contact name" value={form.contact_name} onChange={v => setForm({ ...form, contact_name: v })} placeholder="Quality Manager name" />
+          <div className="grid grid-cols-2 gap-3">
+            <Field label="Email" value={form.contact_email} onChange={v => setForm({ ...form, contact_email: v })} placeholder="qm@company.com" />
+            <Field label="Phone" value={form.contact_phone} onChange={v => setForm({ ...form, contact_phone: v })} placeholder="+1 555 000 0000" />
+          </div>
+        </div>
+      </div>
+
       {error && (
         <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{error}</p>
       )}
@@ -164,6 +218,16 @@ function FacilityTab({ facilityId }: { facilityId: string }) {
           </div>
         </div>
       )}
+    </div>
+  )
+}
+
+function Field({ label, value, onChange, placeholder }: { label: string; value: string; onChange: (v: string) => void; placeholder?: string }) {
+  return (
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1.5">{label}</label>
+      <input value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder}
+        className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
     </div>
   )
 }

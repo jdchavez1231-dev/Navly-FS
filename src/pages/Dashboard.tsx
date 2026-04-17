@@ -1,8 +1,10 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { AlertTriangle, CheckCircle, Clock, MinusCircle, CalendarDays } from 'lucide-react'
+import { AlertTriangle, CheckCircle, Clock, MinusCircle, CalendarDays, Download, Loader2 } from 'lucide-react'
 import { useTracker } from '../hooks/useTracker'
 import { useFacility } from '../hooks/useFacility'
 import { useCorrectiveActions } from '../hooks/useCorrectiveActions'
+import { generateReadinessReport } from '../lib/reportGenerator'
 import { BRCGS_SECTIONS, getAllStats, getSectionStats } from '../data/brcgs'
 
 export default function Dashboard() {
@@ -10,6 +12,17 @@ export default function Dashboard() {
   const { facility } = useFacility()
   const { stats: caStats, actions } = useCorrectiveActions()
   const navigate = useNavigate()
+  const [exporting, setExporting] = useState(false)
+
+  async function handleExportReport() {
+    if (!facility) return
+    setExporting(true)
+    try {
+      await generateReadinessReport(data, actions, facility)
+    } finally {
+      setExporting(false)
+    }
+  }
 
   const daysToAudit = facility?.audit_date
     ? Math.ceil((new Date(facility.audit_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
@@ -35,9 +48,19 @@ export default function Dashboard() {
   return (
     <div className="h-full overflow-y-auto">
       <div className="max-w-4xl mx-auto px-6 py-8">
-        <div className="mb-8">
-          <h1 className="text-2xl font-semibold text-gray-900">Dashboard</h1>
-          <p className="text-sm text-gray-500 mt-1">BRCGS Food Safety — Issue 9 audit readiness</p>
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-2xl font-semibold text-gray-900">Dashboard</h1>
+            <p className="text-sm text-gray-500 mt-1">BRCGS Food Safety — Issue 9 audit readiness</p>
+          </div>
+          <button
+            onClick={handleExportReport}
+            disabled={exporting || loading}
+            className="flex items-center gap-2 bg-white border border-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 disabled:opacity-40 transition-colors"
+          >
+            {exporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+            {exporting ? 'Generating…' : 'Download Report'}
+          </button>
         </div>
 
         {/* Score + stat cards */}
