@@ -427,6 +427,8 @@ export default function Settings() {
   const { facilityId, loading } = useFacility()
   const [tab, setTab] = useState<Tab>('facility')
 
+  useEffect(() => { document.title = 'Settings — Navly FS' }, [])
+
   if (loading) return (
     <div className="flex-1 flex items-center justify-center text-gray-400 text-sm">
       <Loader2 className="w-4 h-4 animate-spin mr-2" /> Loading…

@@ -206,11 +206,11 @@ Be specific to BRCGS Issue 9. No markdown, no extra text.`
   ]
 
   return (
-    <div className="px-4 pb-4 border-t border-gray-100">
-      <p className="text-sm text-gray-500 mt-3 mb-3 leading-relaxed">{clause.description}</p>
+    <div className="px-4 pb-4 border-t border-gray-100 dark:border-gray-700">
+      <p className="text-sm text-gray-500 dark:text-gray-400 mt-3 mb-3 leading-relaxed">{clause.description}</p>
 
       {/* Tabs */}
-      <div className="flex border-b border-gray-100 mb-4">
+      <div className="flex border-b border-gray-100 dark:border-gray-700 mb-4">
         {TABS.map(tab => (
           <button
             key={tab.id}
@@ -219,7 +219,7 @@ Be specific to BRCGS Issue 9. No markdown, no extra text.`
               if (tab.id === 'guide' && !guide && !guideLoading) loadGuide()
             }}
             className={`px-4 py-2 text-xs font-medium transition-colors border-b-2 -mb-px ${
-              activeTab === tab.id ? 'text-blue-700 border-blue-600' : 'text-gray-500 border-transparent hover:text-gray-700'
+              activeTab === tab.id ? 'text-blue-700 dark:text-blue-400 border-blue-600' : 'text-gray-500 dark:text-gray-400 border-transparent hover:text-gray-700 dark:hover:text-gray-200'
             }`}
           >
             {tab.label}
@@ -231,14 +231,14 @@ Be specific to BRCGS Issue 9. No markdown, no extra text.`
       {activeTab === 'notes' && (
         <div>
           <div className="flex items-center justify-between mb-1.5">
-            <span className="text-xs font-medium text-gray-500">
+            <span className="text-xs font-medium text-gray-500 dark:text-gray-400">
               {hasGap ? 'Describe the non-conformance observed' : 'Notes & evidence references'}
             </span>
             {supportsVoice && (
               <button
                 onClick={toggleDictation}
                 className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium transition-colors ${
-                  listening ? 'bg-red-50 text-red-600 border border-red-200' : 'bg-gray-50 text-gray-500 border border-gray-200 hover:bg-gray-100'
+                  listening ? 'bg-red-50 text-red-600 border border-red-200' : 'bg-gray-50 dark:bg-gray-700 text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600'
                 }`}
               >
                 {listening ? <MicOff className="w-3 h-3" /> : <Mic className="w-3 h-3" />}
@@ -248,7 +248,7 @@ Be specific to BRCGS Issue 9. No markdown, no extra text.`
           </div>
 
           {hasGap && (
-            <p className="text-xs text-orange-600 bg-orange-50 border border-orange-200 rounded-md px-3 py-1.5 mb-2">
+            <p className="text-xs text-orange-600 dark:text-orange-400 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-md px-3 py-1.5 mb-2">
               This description will be used as the non-conformance finding in the CAPA.
             </p>
           )}
@@ -260,7 +260,7 @@ Be specific to BRCGS Issue 9. No markdown, no extra text.`
             }
             value={record.notes ?? ''}
             onChange={e => handleNotesChange(e.target.value)}
-            className="w-full text-sm border border-gray-200 rounded-md p-2.5 resize-none focus:outline-none focus:ring-1 focus:ring-blue-500 bg-gray-50"
+            className="w-full text-sm border border-gray-200 dark:border-gray-600 rounded-md p-2.5 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
             rows={4}
           />
           {listening && (
@@ -270,7 +270,7 @@ Be specific to BRCGS Issue 9. No markdown, no extra text.`
             </p>
           )}
           {record.updatedAt && (
-            <p className="text-xs text-gray-400 mt-1">
+            <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
               Last updated {new Date(record.updatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
             </p>
           )}
@@ -287,28 +287,29 @@ Be specific to BRCGS Issue 9. No markdown, no extra text.`
           <input ref={fileInputRef} type="file" accept="image/*,video/*,.pdf,.docx" multiple className="hidden"
             onChange={e => handleEvidenceFiles(e.target.files)} />
           <button onClick={() => fileInputRef.current?.click()} disabled={uploading}
-            className="w-full border-2 border-dashed border-gray-200 rounded-lg p-5 text-center hover:border-blue-300 hover:bg-blue-50 transition-colors disabled:opacity-50 mb-3">
+            className="w-full border-2 border-dashed border-gray-200 dark:border-gray-600 rounded-lg p-5 text-center hover:border-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/10 transition-colors disabled:opacity-50 mb-3">
             {uploading
-              ? <div className="flex items-center justify-center gap-2 text-gray-400 text-xs"><Loader2 className="w-4 h-4 animate-spin" />Uploading…</div>
-              : <div className="flex items-center justify-center gap-2 text-gray-400 text-xs"><Upload className="w-4 h-4" />Upload photos, videos, or documents</div>
+              ? <div className="flex items-center justify-center gap-2 text-gray-400 dark:text-gray-500 text-xs"><Loader2 className="w-4 h-4 animate-spin" />Uploading…</div>
+              : <div className="flex items-center justify-center gap-2 text-gray-400 dark:text-gray-500 text-xs"><Upload className="w-4 h-4" />Upload photos, videos, or documents</div>
             }
           </button>
           {uploadError && <p className="text-xs text-red-500 mb-3">{uploadError}</p>}
           {evidence.length === 0
-            ? <p className="text-xs text-gray-400 text-center py-4">No evidence attached yet</p>
+            ? <p className="text-xs text-gray-400 dark:text-gray-500 text-center py-4">No evidence attached yet</p>
             : <div className="grid grid-cols-3 gap-2">
                 {evidence.map(item => (
-                  <div key={item.url} className="relative group rounded-lg overflow-hidden border border-gray-200 bg-gray-50">
+                  <div key={item.url} className="relative group rounded-lg overflow-hidden border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700">
                     {item.type === 'image'
                       ? <a href={item.url} target="_blank" rel="noreferrer"><img src={item.url} alt={item.name} className="w-full h-20 object-cover" /></a>
                       : <a href={item.url} target="_blank" rel="noreferrer" className="flex flex-col items-center justify-center h-20 gap-1.5 px-2">
                           {item.type === 'video' ? <Video className="w-5 h-5 text-gray-400 shrink-0" /> : <File className="w-5 h-5 text-gray-400 shrink-0" />}
-                          <span className="text-xs text-gray-500 truncate w-full text-center">{item.name}</span>
+                          <span className="text-xs text-gray-500 dark:text-gray-400 truncate w-full text-center">{item.name}</span>
                         </a>
                     }
                     <button onClick={() => removeEvidence(item)}
+                      aria-label={`Remove ${item.name}`}
                       className="absolute top-1 right-1 bg-black/60 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <X className="w-3 h-3" />
+                      <X className="w-3 h-3" aria-hidden="true" />
                     </button>
                   </div>
                 ))}
@@ -323,12 +324,12 @@ Be specific to BRCGS Issue 9. No markdown, no extra text.`
           <div className="flex-1 overflow-y-auto space-y-3 mb-3 min-h-0 pr-1">
             {messages.length === 0
               ? <div className="text-center pt-4">
-                  <Bot className="w-7 h-7 text-gray-200 mx-auto mb-2" />
-                  <p className="text-xs text-gray-400 mb-3">Ask about requirements, evidence, or how to achieve compliance</p>
+                  <Bot className="w-7 h-7 text-gray-200 dark:text-gray-600 mx-auto mb-2" />
+                  <p className="text-xs text-gray-400 dark:text-gray-500 mb-3">Ask about requirements, evidence, or how to achieve compliance</p>
                   <div className="space-y-1.5">
                     {SUGGESTED_QUESTIONS.map(q => (
                       <button key={q} onClick={() => sendMessage(q)}
-                        className="block w-full text-xs text-left px-3 py-2 bg-gray-50 hover:bg-blue-50 hover:text-blue-700 rounded-lg text-gray-600 transition-colors">
+                        className="block w-full text-xs text-left px-3 py-2 bg-gray-50 dark:bg-gray-700 hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-700 dark:hover:text-blue-400 rounded-lg text-gray-600 dark:text-gray-300 transition-colors">
                         {q}
                       </button>
                     ))}
@@ -336,23 +337,24 @@ Be specific to BRCGS Issue 9. No markdown, no extra text.`
                 </div>
               : messages.map((m, i) => (
                   <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                    <div className={`max-w-[85%] text-xs rounded-2xl px-3 py-2 leading-relaxed whitespace-pre-wrap ${m.role === 'user' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-800'}`}>
+                    <div className={`max-w-[85%] text-xs rounded-2xl px-3 py-2 leading-relaxed whitespace-pre-wrap ${m.role === 'user' ? 'bg-blue-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200'}`}>
                       {m.content}
                     </div>
                   </div>
                 ))
             }
-            {aiLoading && <div className="flex justify-start"><div className="bg-gray-100 rounded-2xl px-3 py-2"><Loader2 className="w-3 h-3 animate-spin text-gray-400" /></div></div>}
+            {aiLoading && <div className="flex justify-start"><div className="bg-gray-100 dark:bg-gray-700 rounded-2xl px-3 py-2"><Loader2 className="w-3 h-3 animate-spin text-gray-400" /></div></div>}
             <div ref={chatEndRef} />
           </div>
           <div className="flex gap-2">
             <input type="text" value={input} onChange={e => setInput(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && !e.shiftKey && sendMessage()}
               placeholder="Ask a question…"
-              className="flex-1 text-xs border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500 bg-gray-50" />
+              className="flex-1 text-xs border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500" />
             <button onClick={() => sendMessage()} disabled={!input.trim() || aiLoading}
+              aria-label="Send message"
               className="bg-blue-600 text-white rounded-lg px-3 py-2 hover:bg-blue-700 disabled:opacity-40 transition-colors shrink-0">
-              <Send className="w-3.5 h-3.5" />
+              <Send className="w-3.5 h-3.5" aria-hidden="true" />
             </button>
           </div>
         </div>
@@ -362,16 +364,16 @@ Be specific to BRCGS Issue 9. No markdown, no extra text.`
       {activeTab === 'guide' && (
         <div>
           {guideLoading && (
-            <div className="flex items-center justify-center gap-2 py-10 text-gray-400 text-xs">
-              <Loader2 className="w-4 h-4 animate-spin" />
+            <div role="status" className="flex items-center justify-center gap-2 py-10 text-gray-400 text-xs">
+              <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />
               Generating audit guide…
             </div>
           )}
 
           {!guideLoading && !guide && (
             <div className="text-center py-8">
-              <BookOpen className="w-7 h-7 text-gray-200 mx-auto mb-2" />
-              <p className="text-xs text-gray-400 mb-3">Get AI-generated auditing guidance for this clause</p>
+              <BookOpen className="w-7 h-7 text-gray-200 dark:text-gray-600 mx-auto mb-2" />
+              <p className="text-xs text-gray-400 dark:text-gray-500 mb-3">Get AI-generated auditing guidance for this clause</p>
               <button onClick={loadGuide}
                 className="px-4 py-2 bg-blue-600 text-white text-xs font-medium rounded-lg hover:bg-blue-700 transition-colors">
                 Generate Audit Guide
@@ -382,8 +384,8 @@ Be specific to BRCGS Issue 9. No markdown, no extra text.`
           {!guideLoading && guide && (
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <p className="text-xs text-gray-400">AI-generated guidance for clause {clause.id}</p>
-                <button onClick={loadGuide} className="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600 transition-colors">
+                <p className="text-xs text-gray-400 dark:text-gray-500">AI-generated guidance for clause {clause.id}</p>
+                <button onClick={loadGuide} className="flex items-center gap-1 text-xs text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
                   <RefreshCw className="w-3 h-3" />Regenerate
                 </button>
               </div>
@@ -434,28 +436,32 @@ function GuideSection({
   onToggle: (k: string) => void
   checkable: boolean
 }) {
-  const headerColor = { blue: 'text-blue-700 bg-blue-50 border-blue-200', green: 'text-green-700 bg-green-50 border-green-200', red: 'text-red-700 bg-red-50 border-red-200' }[color]
+  const headerColor = {
+    blue: 'text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800',
+    green: 'text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800',
+    red: 'text-red-700 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800',
+  }[color]
   const checkColor = { blue: 'text-blue-500', green: 'text-green-500', red: 'text-red-400' }[color]
 
   return (
-    <div className="border border-gray-200 rounded-lg overflow-hidden">
+    <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
       <div className={`px-3 py-2 text-xs font-semibold border-b ${headerColor}`}>{title}</div>
-      <ul className="divide-y divide-gray-50">
+      <ul className="divide-y divide-gray-50 dark:divide-gray-700">
         {items.map((item, i) => {
           const key = `${prefix}-${i}`
           const done = checked[key]
           return (
             <li key={key}
-              className={`flex items-start gap-2.5 px-3 py-2.5 transition-colors ${checkable ? 'cursor-pointer hover:bg-gray-50' : ''} ${done ? 'opacity-50' : ''}`}
+              className={`flex items-start gap-2.5 px-3 py-2.5 transition-colors ${checkable ? 'cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50' : ''} ${done ? 'opacity-50' : ''}`}
               onClick={() => checkable && onToggle(key)}
             >
               {checkable
                 ? done
                   ? <CheckSquare className={`w-3.5 h-3.5 shrink-0 mt-0.5 ${checkColor}`} />
-                  : <Square className="w-3.5 h-3.5 shrink-0 mt-0.5 text-gray-300" />
+                  : <Square className="w-3.5 h-3.5 shrink-0 mt-0.5 text-gray-300 dark:text-gray-600" />
                 : <span className="w-1.5 h-1.5 rounded-full bg-red-400 shrink-0 mt-1.5" />
               }
-              <span className={`text-xs text-gray-700 leading-relaxed ${done ? 'line-through text-gray-400' : ''}`}>{item}</span>
+              <span className={`text-xs text-gray-700 dark:text-gray-300 leading-relaxed ${done ? 'line-through text-gray-400 dark:text-gray-500' : ''}`}>{item}</span>
             </li>
           )
         })}

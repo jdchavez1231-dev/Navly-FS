@@ -1,11 +1,13 @@
 import { NavLink, Outlet } from 'react-router-dom'
-import { LayoutDashboard, ClipboardCheck, FolderOpen, Settings, LogOut, AlertTriangle } from 'lucide-react'
+import { LayoutDashboard, ClipboardCheck, FolderOpen, Settings, LogOut, AlertTriangle, Sun, Moon, FileEdit } from 'lucide-react'
 import { useAuth } from '../lib/AuthContext'
 import { useFacility } from '../hooks/useFacility'
+import { useDarkMode } from '../hooks/useDarkMode'
 
 export default function Layout() {
   const { user, signOut } = useAuth()
   const { facility } = useFacility()
+  const { dark, toggle } = useDarkMode()
 
   const linkClass = ({ isActive }: { isActive: boolean }) =>
     `flex items-center gap-2.5 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
@@ -17,15 +19,20 @@ export default function Layout() {
   const initials = (user?.email ?? '?').slice(0, 2).toUpperCase()
 
   return (
-    <div className="flex h-screen bg-gray-50 overflow-hidden">
+    <div className="flex h-[100dvh] bg-gray-50 dark:bg-gray-900 overflow-hidden">
       {/* Sidebar */}
-      <aside className="w-52 shrink-0 bg-[#0A2340] flex flex-col">
-        <div className="px-5 py-5 border-b border-white/10">
-          <div className="text-base font-bold text-white tracking-tight">Navly</div>
-          <div className="text-xs text-white/40 mt-0.5">Food Safety Platform</div>
+      <aside aria-label="Application sidebar" className="w-52 shrink-0 bg-[#0A2340] flex flex-col">
+        <div className="px-5 py-5 border-b border-white/10 flex items-center gap-2.5">
+          <div className="w-7 h-7 bg-emerald-500 rounded-lg flex items-center justify-center shrink-0">
+            <span className="text-white font-bold text-xs">N</span>
+          </div>
+          <div>
+            <div className="text-sm font-bold text-white tracking-tight">Navly FS</div>
+            <div className="text-xs text-white/40">Food Safety Platform</div>
+          </div>
         </div>
-        <nav className="flex-1 p-3 space-y-1">
-          <NavLink to="/" end className={linkClass}>
+        <nav aria-label="Main navigation" className="flex-1 p-3 space-y-1">
+          <NavLink to="/dashboard" className={linkClass}>
             <LayoutDashboard className="w-4 h-4" />
             Dashboard
           </NavLink>
@@ -40,6 +47,10 @@ export default function Layout() {
           <NavLink to="/corrective-actions" className={linkClass}>
             <AlertTriangle className="w-4 h-4" />
             Corrective Actions
+          </NavLink>
+          <NavLink to="/documents" className={linkClass}>
+            <FileEdit className="w-4 h-4" />
+            Documents
           </NavLink>
           <NavLink to="/settings" className={linkClass}>
             <Settings className="w-4 h-4" />
@@ -60,12 +71,19 @@ export default function Layout() {
       {/* Main */}
       <div className="flex-1 overflow-hidden flex flex-col">
         {/* Top bar */}
-        <header className="h-14 bg-white border-b border-gray-200 flex items-center justify-between px-6 shrink-0">
-          <span className="text-sm font-medium text-gray-700 truncate">
+        <header className="h-14 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between px-6 shrink-0">
+          <span className="text-sm font-medium text-gray-700 dark:text-gray-300 truncate">
             {facility?.name ?? ''}
           </span>
           <div className="flex items-center gap-3">
             {facility?.audit_date && <AuditCountdown date={facility.audit_date} />}
+            <button
+              onClick={toggle}
+              aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'}
+              className="w-8 h-8 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            >
+              {dark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            </button>
             <div className="w-8 h-8 rounded-full bg-[#0A2340] flex items-center justify-center text-xs font-semibold text-white">
               {initials}
             </div>

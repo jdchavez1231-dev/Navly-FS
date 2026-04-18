@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { ChevronDown } from 'lucide-react'
 import { useTracker } from '../hooks/useTracker'
@@ -33,10 +33,12 @@ export default function Tracker() {
   const activeSectionId = sectionId ?? '1'
   const activeSection = BRCGS_SECTIONS.find(s => s.id === activeSectionId)
 
+  useEffect(() => { document.title = 'BRCGS Tracker — Navly FS' }, [])
+
   if (loading) {
     return (
-      <div className="flex-1 flex items-center justify-center text-gray-400 text-sm">
-        <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mr-2" />
+      <div role="status" className="flex-1 flex items-center justify-center text-gray-400 dark:text-gray-500 text-sm">
+        <div aria-hidden="true" className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mr-2" />
         Loading checklist…
       </div>
     )
@@ -45,9 +47,9 @@ export default function Tracker() {
   return (
     <div className="flex flex-1 overflow-hidden">
       {/* Section sidebar */}
-      <aside className="w-60 shrink-0 bg-white border-r border-gray-200 overflow-y-auto">
-        <div className="px-4 py-3 border-b border-gray-100">
-          <div className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Sections</div>
+      <aside className="w-60 shrink-0 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 overflow-y-auto">
+        <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-700">
+          <div className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide">Sections</div>
         </div>
         {BRCGS_SECTIONS.map(section => {
           const s = getSectionStats(section, data)
@@ -61,22 +63,29 @@ export default function Tracker() {
                 navigate(`/tracker/${section.id}`)
                 setExpandedId(null)
               }}
-              className={`w-full text-left px-4 py-3 border-b border-gray-50 transition-colors ${
+              className={`w-full text-left px-4 py-3 border-b border-gray-50 dark:border-gray-700/50 transition-colors ${
                 isActive
-                  ? 'bg-blue-50 border-l-2 border-l-blue-600'
-                  : 'hover:bg-gray-50 border-l-2 border-l-transparent'
+                  ? 'bg-blue-50 dark:bg-blue-900/20 border-l-2 border-l-blue-600'
+                  : 'hover:bg-gray-50 dark:hover:bg-gray-700/50 border-l-2 border-l-transparent'
               }`}
             >
               <div className="flex items-start justify-between gap-2 mb-1.5">
-                <span className={`text-xs font-medium leading-tight ${isActive ? 'text-blue-800' : 'text-gray-700'}`}>
+                <span className={`text-xs font-medium leading-tight ${isActive ? 'text-blue-700 dark:text-blue-400' : 'text-gray-700 dark:text-gray-300'}`}>
                   {section.id}. {section.title}
                 </span>
-                <span className="text-xs text-gray-400 shrink-0">{s.compliant}/{s.total}</span>
+                <span className="text-xs text-gray-400 dark:text-gray-500 shrink-0">{s.compliant}/{s.total}</span>
               </div>
-              <div className="h-1 bg-gray-100 rounded-full overflow-hidden">
+              <div
+                role="progressbar"
+                aria-valuenow={pct}
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-label={`${section.title}: ${s.assessed > 0 ? `${pct}% compliant` : 'not assessed'}`}
+                className="h-1 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden"
+              >
                 <div
                   className={`h-full rounded-full transition-all ${
-                    pct === 100 ? 'bg-green-500' : pct > 0 ? 'bg-blue-400' : 'bg-gray-200'
+                    pct === 100 ? 'bg-green-500' : pct > 0 ? 'bg-blue-400' : 'bg-gray-200 dark:bg-gray-600'
                   }`}
                   style={{ width: `${Math.max(pct, s.assessed > 0 ? 2 : 0)}%` }}
                 />
@@ -90,14 +99,14 @@ export default function Tracker() {
       </aside>
 
       {/* Clause list */}
-      <div className="flex-1 overflow-y-auto bg-gray-50">
+      <div className="flex-1 overflow-y-auto bg-gray-50 dark:bg-gray-900">
         {activeSection ? (
           <div className="p-6">
             <div className="mb-5">
-              <h2 className="text-lg font-semibold text-gray-900">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
                 Section {activeSection.id}: {activeSection.title}
               </h2>
-              <p className="text-sm text-gray-400 mt-0.5">{activeSection.clauses.length} requirements</p>
+              <p className="text-sm text-gray-400 dark:text-gray-500 mt-0.5">{activeSection.clauses.length} requirements</p>
             </div>
 
             <div className="space-y-2">
@@ -110,24 +119,32 @@ export default function Tracker() {
                 return (
                   <div
                     key={clause.id}
-                    className={`bg-white border rounded-lg overflow-hidden ${
-                      status === 'gap' ? 'border-orange-200' : 'border-gray-200'
+                    className={`bg-white dark:bg-gray-800 border rounded-lg overflow-hidden ${
+                      status === 'gap' ? 'border-orange-200 dark:border-orange-800' : 'border-gray-200 dark:border-gray-700'
                     }`}
                   >
-                    <div
-                      className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-gray-50 transition-colors"
-                      onClick={() => setExpandedId(isExpanded ? null : clause.id)}
-                    >
-                      <span className="text-xs font-mono font-semibold text-gray-400 w-7 shrink-0">
-                        {clause.id}
-                      </span>
-                      <RatingBadge rating={clause.rating} />
-                      <span className="flex-1 text-sm font-medium text-gray-900 min-w-0">
-                        {clause.title}
-                      </span>
-                      {ca && !isExpanded && (
-                        <span className="text-xs text-orange-600 font-medium shrink-0">CA {ca.status.replace('_', ' ')}</span>
-                      )}
+                    <div className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                      <button
+                        type="button"
+                        aria-expanded={isExpanded}
+                        aria-controls={`clause-panel-${clause.id}`}
+                        onClick={() => setExpandedId(isExpanded ? null : clause.id)}
+                        className="flex items-center gap-3 flex-1 min-w-0 text-left bg-transparent border-0 p-0 cursor-pointer"
+                      >
+                        <span className="text-xs font-mono font-semibold text-gray-400 dark:text-gray-500 w-7 shrink-0">
+                          {clause.id}
+                        </span>
+                        <RatingBadge rating={clause.rating} />
+                        <span className="flex-1 text-sm font-medium text-gray-900 dark:text-white min-w-0">
+                          {clause.title}
+                        </span>
+                        {ca && !isExpanded && (
+                          <span className="text-xs text-orange-600 dark:text-orange-400 font-medium shrink-0">CA {ca.status.replace('_', ' ')}</span>
+                        )}
+                        <ChevronDown
+                          className={`w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
+                        />
+                      </button>
                       <StatusSelect
                         value={status}
                         onChange={s => {
@@ -135,12 +152,10 @@ export default function Tracker() {
                           if (s === 'gap') setExpandedId(clause.id)
                         }}
                       />
-                      <ChevronDown
-                        className={`w-4 h-4 text-gray-400 shrink-0 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
-                      />
                     </div>
 
                     {isExpanded && (
+                      <div id={`clause-panel-${clause.id}`}>
                       <ClausePanel
                         clause={clause}
                         record={record ?? { status: 'not_assessed', notes: '', updatedAt: '', evidence: [] }}
@@ -157,6 +172,7 @@ export default function Tracker() {
                         correctiveAction={ca}
                         onUpdateCA={updateAction}
                       />
+                      </div>
                     )}
                   </div>
                 )
@@ -164,7 +180,7 @@ export default function Tracker() {
             </div>
           </div>
         ) : (
-          <div className="flex items-center justify-center h-full text-gray-400 text-sm">
+          <div className="flex items-center justify-center h-full text-gray-400 dark:text-gray-500 text-sm">
             Select a section to begin.
           </div>
         )}

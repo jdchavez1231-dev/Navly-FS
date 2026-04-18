@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../lib/AuthContext'
@@ -10,6 +10,8 @@ export default function Onboarding() {
   const location = useLocation()
   const { user } = useAuth()
   const facilityId = (location.state as { facilityId?: string })?.facilityId
+
+  useEffect(() => { document.title = 'Setup — Navly FS' }, [])
 
   const [step, setStep] = useState(0)
   const [form, setForm] = useState({

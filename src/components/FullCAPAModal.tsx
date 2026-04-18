@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { X, AlertTriangle, Sparkles, Loader2 } from 'lucide-react'
 import type { CorrectiveAction, RCAFramework, FiveWhysData, FishboneData } from '../types'
 
@@ -26,6 +26,37 @@ const EMPTY_FISHBONE: FishboneData = { man: '', machine: '', method: '', materia
 type Draft = Partial<CorrectiveAction>
 
 export function FullCAPAModal({ action, onUpdate, onClose }: Props) {
+  const modalRef = useRef<HTMLDivElement>(null)
+
+  // Restore focus to the trigger element when modal closes
+  useEffect(() => {
+    const prev = document.activeElement as HTMLElement | null
+    return () => { prev?.focus() }
+  }, [])
+
+  // Focus trap and Escape key handler
+  useEffect(() => {
+    const el = modalRef.current
+    if (!el) return
+    const focusable = el.querySelectorAll<HTMLElement>(
+      'button, input, select, textarea, [href], [tabindex]:not([tabindex="-1"])'
+    )
+    const first = focusable[0]
+    const last = focusable[focusable.length - 1]
+    first?.focus()
+    function onKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') { onClose(); return }
+      if (e.key !== 'Tab') return
+      if (e.shiftKey) {
+        if (document.activeElement === first) { e.preventDefault(); last?.focus() }
+      } else {
+        if (document.activeElement === last) { e.preventDefault(); first?.focus() }
+      }
+    }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [onClose])
+
   const [draft, setDraft] = useState<Draft>({
     assigned_to:         action.assigned_to,
     due_date:            action.due_date,
@@ -135,13 +166,13 @@ Be specific and practical. Each field should be 1-3 sentences. No extra text or 
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4 py-6">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col">
+      <div ref={modalRef} role="dialog" aria-modal="true" aria-labelledby="capa-modal-title" className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col">
         {/* Header */}
         <div className="flex items-start justify-between px-6 py-4 border-b border-gray-100 shrink-0">
           <div>
             <div className="flex items-center gap-2 mb-1">
               <AlertTriangle className="w-4 h-4 text-orange-500" />
-              <h2 className="text-base font-semibold text-gray-900">Full CAPA</h2>
+              <h2 id="capa-modal-title" className="text-base font-semibold text-gray-900">Full CAPA</h2>
             </div>
             <div className="flex items-center gap-2">
               <span className="text-xs font-mono text-gray-400">{action.element_code}</span>
@@ -151,8 +182,8 @@ Be specific and practical. Each field should be 1-3 sentences. No extra text or 
               </span>
             </div>
           </div>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 mt-1">
-            <X className="w-5 h-5" />
+          <button onClick={onClose} aria-label="Close" className="text-gray-400 hover:text-gray-600 mt-1">
+            <X className="w-5 h-5" aria-hidden="true" />
           </button>
         </div>
 
@@ -164,17 +195,17 @@ Be specific and practical. Each field should be 1-3 sentences. No extra text or 
               <label className="block text-xs font-medium text-gray-600 mb-1">Assigned to</label>
               <input type="text" value={draft.assigned_to ?? ''} onChange={e => set('assigned_to', e.target.value)}
                 placeholder="Name or team"
-                className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500" />
+                className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
             </div>
             <div>
               <label className="block text-xs font-medium text-gray-600 mb-1">Due date</label>
               <input type="date" value={draft.due_date ?? ''} onChange={e => set('due_date', e.target.value)}
-                className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500" />
+                className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
             </div>
             <div>
               <label className="block text-xs font-medium text-gray-600 mb-1">Status</label>
               <select value={draft.status ?? 'open'} onChange={e => set('status', e.target.value)}
-                className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
                 <option value="open">Open</option>
                 <option value="in_progress">In Progress</option>
                 <option value="closed">Closed</option>
@@ -241,7 +272,7 @@ Be specific and practical. Each field should be 1-3 sentences. No extra text or 
                     onChange={e => set('root_cause', e.target.value)}
                     placeholder="Describe the root cause of this non-conformance…"
                     rows={3}
-                    className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 resize-none focus:outline-none focus:ring-1 focus:ring-blue-500 bg-gray-50"
+                    className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50"
                   />
                 )}
 
@@ -255,7 +286,7 @@ Be specific and practical. Each field should be 1-3 sentences. No extra text or 
                           value={rcaData[`why${n}`] ?? ''}
                           onChange={e => setRCAField(`why${n}`, e.target.value)}
                           placeholder={n === 1 ? 'Why did this happen?' : `Why did "${rcaData[`why${n-1}`] || '…'}" happen?`}
-                          className="flex-1 text-sm border border-gray-200 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white"
+                          className="flex-1 text-sm border border-gray-200 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
                         />
                       </div>
                     ))}
@@ -279,7 +310,7 @@ Be specific and practical. Each field should be 1-3 sentences. No extra text or 
                           value={rcaData[key] ?? ''}
                           onChange={e => setRCAField(key, e.target.value)}
                           placeholder={`Contributing factors…`}
-                          className="w-full text-sm border border-gray-200 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white"
+                          className="w-full text-sm border border-gray-200 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
                         />
                       </div>
                     ))}
@@ -335,7 +366,7 @@ function TextField({
     <div>
       <label className="block text-xs font-medium text-gray-600 mb-1">{label}</label>
       <textarea value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder} rows={rows}
-        className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 resize-none focus:outline-none focus:ring-1 focus:ring-blue-500 bg-gray-50" />
+        className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50" />
     </div>
   )
 }

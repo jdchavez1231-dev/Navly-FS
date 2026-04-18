@@ -19,6 +19,8 @@ export default function GapReport() {
   const [report, setReport] = useState<Report | null>(null)
   const [loading, setLoading] = useState(true)
 
+  useEffect(() => { document.title = 'Gap Report — Navly FS' }, [])
+
   useEffect(() => {
     if (!reportId) return
     supabase
@@ -106,7 +108,7 @@ export default function GapReport() {
   const isCompliant = gaps.length === 0
 
   return (
-    <div className="flex-1 overflow-y-auto bg-gray-50">
+    <div className="flex-1 overflow-y-auto bg-gray-50 dark:bg-gray-900">
       <div className="max-w-3xl mx-auto px-6 py-8">
         {/* Header */}
         <div className="flex items-center gap-3 mb-6">
@@ -117,11 +119,11 @@ export default function GapReport() {
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div className="flex-1">
-            <h1 className="text-2xl font-semibold text-gray-900">Gap Report</h1>
+            <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">Gap Report</h1>
           </div>
           <button
             onClick={exportPDF}
-            className="flex items-center gap-2 bg-white border border-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
+            className="flex items-center gap-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-900 transition-colors"
           >
             <Download className="w-4 h-4" />
             Export PDF
@@ -129,15 +131,15 @@ export default function GapReport() {
         </div>
 
         {/* Summary card */}
-        <div className="bg-white border border-gray-200 rounded-xl p-5 mb-6">
+        <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5 mb-6">
           <div className="flex items-start justify-between">
             <div className="space-y-1.5">
               <div className="flex items-center gap-2">
                 <FileText className="w-4 h-4 text-gray-400" />
-                <span className="text-sm font-medium text-gray-900">{report.sop_documents.file_name}</span>
+                <span className="text-sm font-medium text-gray-900 dark:text-white">{report.sop_documents.file_name}</span>
               </div>
-              <div className="text-xs text-gray-500">
-                Element: <span className="font-medium text-gray-700">{report.sop_documents.mapped_standard ?? '—'}</span>
+              <div className="text-xs text-gray-500 dark:text-gray-400">
+                Element: <span className="font-medium text-gray-700 dark:text-gray-300">{report.sop_documents.mapped_standard ?? '—'}</span>
               </div>
               <div className="text-xs text-gray-400">
                 Analyzed {new Date(report.generated_at).toLocaleDateString('en-US', {
@@ -166,7 +168,7 @@ export default function GapReport() {
         ) : (
           <div className="space-y-3">
             {gaps.map((gap, i) => (
-              <div key={i} className="bg-white border border-gray-200 rounded-xl p-5">
+              <div key={i} className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5">
                 <div className="flex items-center gap-2 mb-3">
                   <span className="text-xs font-mono font-semibold text-gray-400">{gap.element_code}</span>
                   <span className="text-xs bg-red-50 text-red-600 border border-red-200 px-2 py-0.5 rounded font-medium">
@@ -174,10 +176,10 @@ export default function GapReport() {
                   </span>
                 </div>
                 <div className="mb-2">
-                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Requirement</p>
-                  <p className="text-sm text-gray-700">{gap.requirement}</p>
+                  <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Requirement</p>
+                  <p className="text-sm text-gray-700 dark:text-gray-300">{gap.requirement}</p>
                 </div>
-                <div className="border-t border-gray-100 pt-3 mt-3">
+                <div className="border-t border-gray-100 dark:border-gray-700 pt-3 mt-3">
                   <p className="text-xs font-semibold text-red-500 uppercase tracking-wide mb-1">Gap identified</p>
                   <p className="text-sm text-gray-800">{gap.gap_description}</p>
                 </div>
