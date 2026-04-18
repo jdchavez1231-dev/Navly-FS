@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { X, Plus, Sparkles, Loader2 } from 'lucide-react'
-import type { Rating, RCAFramework, FiveWhysData, FishboneData, CorrectiveAction } from '../types'
+import type { Rating, RCAFramework, FiveWhysData, FishboneData } from '../types'
 
 const CATEGORIES = [
   'GMP',

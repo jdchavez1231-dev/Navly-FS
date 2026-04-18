@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import {
   FileText, Plus, Trash2, Mic, MicOff, Bot, ChevronRight,
   ChevronDown, Loader2, Send, Download, Save, Sparkles, GripVertical,
@@ -553,7 +553,7 @@ function SectionEditor({
 
 type Msg = { role: 'user' | 'assistant'; content: string }
 
-function AIAssistant({ doc, onApply }: { doc: FoodSafetyDoc; onApply: (text: string) => void }) {
+function AIAssistant({ doc }: { doc: FoodSafetyDoc }) {
   const [open, setOpen] = useState(false)
   const [messages, setMessages] = useState<Msg[]>([])
   const [input, setInput] = useState('')
@@ -750,7 +750,7 @@ function DocEditor({ doc, onChange }: { doc: FoodSafetyDoc; onChange: (d: FoodSa
         </div>
 
         {/* AI assistant */}
-        <AIAssistant doc={doc} onApply={() => {}} />
+        <AIAssistant doc={doc} />
       </div>
 
       {/* Outline */}
