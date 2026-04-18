@@ -4,6 +4,8 @@ import {
   ChevronDown, Loader2, Send, Download, Save, Sparkles, GripVertical,
   FileEdit, X
 } from 'lucide-react'
+import { generateDocumentPDF } from '../lib/reportGenerator'
+import { useFacility } from '../hooks/useFacility'
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -655,7 +657,7 @@ function AIAssistant({ doc }: { doc: FoodSafetyDoc }) {
 
 // ── Main Document Editor ───────────────────────────────────────────────────────
 
-function DocEditor({ doc, onChange }: { doc: FoodSafetyDoc; onChange: (d: FoodSafetyDoc) => void }) {
+function DocEditor({ doc, onChange, facilityName }: { doc: FoodSafetyDoc; onChange: (d: FoodSafetyDoc) => void; facilityName?: string }) {
   const [activeSection, setActiveSection] = useState<string | null>(null)
 
   function updateTitle(title: string) {
@@ -687,17 +689,14 @@ function DocEditor({ doc, onChange }: { doc: FoodSafetyDoc; onChange: (d: FoodSa
     document.getElementById(`section-${id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' })
   }
 
-  function exportText() {
-    const lines = [`# ${doc.title}\n`]
-    doc.sections.forEach((s, i) => {
-      lines.push(`${s.level === 1 ? '##' : '###'} ${i + 1}. ${s.title}`)
-      if (s.body) lines.push(s.body)
-      lines.push('')
+  async function exportPDF() {
+    const typeLabel = TEMPLATES.find(t => t.id === doc.type)?.category ?? 'Document'
+    await generateDocumentPDF({
+      title: doc.title || 'Untitled Document',
+      typeLabel,
+      sections: doc.sections,
+      facilityName,
     })
-    const blob = new Blob([lines.join('\n')], { type: 'text/plain' })
-    const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(blob), download: `${doc.title}.txt` })
-    a.click()
-    URL.revokeObjectURL(a.href)
   }
 
   return (
@@ -718,11 +717,11 @@ function DocEditor({ doc, onChange }: { doc: FoodSafetyDoc; onChange: (d: FoodSa
             {TEMPLATES.find(t => t.id === doc.type)?.category ?? 'Custom'}
           </span>
           <button
-            onClick={exportText}
+            onClick={exportPDF}
             className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors shrink-0"
           >
             <Download className="w-3.5 h-3.5" />
-            Export
+            Export PDF
           </button>
         </div>
 
@@ -762,6 +761,7 @@ function DocEditor({ doc, onChange }: { doc: FoodSafetyDoc; onChange: (d: FoodSa
 // ── Page Root ─────────────────────────────────────────────────────────────────
 
 export default function DocumentCreator() {
+  const { facility } = useFacility()
   const [docs, setDocs] = useState<FoodSafetyDoc[]>(loadDocs)
   const [activeId, setActiveId] = useState<string | null>(docs[0]?.id ?? null)
   const [showPicker, setShowPicker] = useState(false)
@@ -819,7 +819,7 @@ export default function DocumentCreator() {
               <Save className="w-3 h-3" /> Saved
             </div>
           )}
-          <DocEditor doc={activeDoc} onChange={handleDocChange} />
+          <DocEditor doc={activeDoc} onChange={handleDocChange} facilityName={facility?.name} />
         </div>
       ) : (
         <div className="flex-1 flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-900 gap-4">

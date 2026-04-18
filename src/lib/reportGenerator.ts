@@ -302,6 +302,215 @@ export async function generateReadinessReport(
   doc.save(filename)
 }
 
+// ── Document PDF export ─────────────────────────────────────────────────────
+
+export async function generateDocumentPDF(opts: {
+  title: string
+  typeLabel: string
+  sections: { title: string; body: string; level: 1 | 2 }[]
+  facilityName?: string
+}) {
+  const { default: jsPDF } = await import('jspdf')
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
+  const W = 210, margin = 16, contentW = W - margin * 2
+  let y = 0
+
+  // Cover band
+  doc.setFillColor(...hex(BRAND))
+  doc.rect(0, 0, W, 40, 'F')
+  doc.setTextColor(255, 255, 255)
+  doc.setFontSize(18)
+  doc.setFont('helvetica', 'bold')
+  const titleLines: string[] = doc.splitTextToSize(opts.title || 'Untitled Document', contentW)
+  doc.text(titleLines, margin, 18)
+  doc.setFontSize(9)
+  doc.setFont('helvetica', 'normal')
+  doc.setTextColor(180, 210, 255)
+  doc.text(opts.typeLabel, margin, 32)
+
+  // Sub-header
+  doc.setFillColor(...hex(LIGHT))
+  doc.rect(0, 40, W, 14, 'F')
+  doc.setFontSize(8)
+  doc.setTextColor(...hex(GRAY))
+  if (opts.facilityName) doc.text(opts.facilityName, margin, 49)
+  doc.text(new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }), W - margin, 49, { align: 'right' })
+
+  y = 64
+
+  for (let i = 0; i < opts.sections.length; i++) {
+    const s = opts.sections[i]
+    if (y > 270) { doc.addPage(); y = margin + 4 }
+
+    // Section heading
+    if (s.level === 1) {
+      doc.setFillColor(...hex(BRAND))
+      doc.rect(margin, y, contentW, 8, 'F')
+      doc.setTextColor(255, 255, 255)
+      doc.setFontSize(9)
+      doc.setFont('helvetica', 'bold')
+      doc.text(`${i + 1}. ${s.title || 'Untitled'}`, margin + 3, y + 5.5)
+    } else {
+      doc.setFillColor(...hex(LIGHT))
+      doc.rect(margin, y, contentW, 7, 'F')
+      doc.setTextColor(...hex(BRAND))
+      doc.setFontSize(8.5)
+      doc.setFont('helvetica', 'bold')
+      doc.text(`${i + 1}. ${s.title || 'Untitled'}`, margin + 6, y + 4.8)
+    }
+    y += s.level === 1 ? 10 : 9
+
+    if (s.body) {
+      doc.setFont('helvetica', 'normal')
+      doc.setFontSize(9)
+      doc.setTextColor(...hex(GRAY))
+      const lines: string[] = doc.splitTextToSize(s.body, contentW - 4)
+      for (const line of lines) {
+        if (y > 272) { doc.addPage(); y = margin + 4 }
+        doc.text(line, margin + 4, y)
+        y += 5
+      }
+      y += 3
+    } else {
+      y += 2
+    }
+  }
+
+  // Footer
+  const pageCount = (doc as any).getNumberOfPages()
+  for (let i = 1; i <= pageCount; i++) {
+    doc.setPage(i)
+    doc.setFillColor(...hex(BRAND))
+    doc.rect(0, 292, W, 8, 'F')
+    doc.setTextColor(180, 210, 255)
+    doc.setFontSize(7)
+    doc.setFont('helvetica', 'normal')
+    doc.text(opts.facilityName ? `${opts.facilityName} · ${opts.title}` : opts.title, margin, 297.5)
+    doc.text(`Page ${i} of ${pageCount}`, W - margin, 297.5, { align: 'right' })
+  }
+
+  const filename = `${opts.title.replace(/\s+/g, '-').toLowerCase()}-${new Date().toISOString().slice(0, 10)}.pdf`
+  doc.save(filename)
+}
+
+// ── SOP PDF export (from markdown string) ──────────────────────────────────
+
+export async function generateSOPPDF(opts: {
+  content: string
+  title: string
+  facilityName?: string
+}) {
+  const { default: jsPDF } = await import('jspdf')
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
+  const W = 210, margin = 16, contentW = W - margin * 2
+  let y = 0
+
+  // Cover band
+  doc.setFillColor(...hex(BRAND))
+  doc.rect(0, 0, W, 40, 'F')
+  doc.setTextColor(255, 255, 255)
+  doc.setFontSize(16)
+  doc.setFont('helvetica', 'bold')
+  const titleLines: string[] = doc.splitTextToSize(opts.title || 'SOP', contentW)
+  doc.text(titleLines, margin, 20)
+  doc.setFontSize(9)
+  doc.setFont('helvetica', 'normal')
+  doc.setTextColor(180, 210, 255)
+  doc.text('Standard Operating Procedure', margin, 34)
+
+  doc.setFillColor(...hex(LIGHT))
+  doc.rect(0, 40, W, 14, 'F')
+  doc.setFontSize(8)
+  doc.setTextColor(...hex(GRAY))
+  if (opts.facilityName) doc.text(opts.facilityName, margin, 49)
+  doc.text(new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }), W - margin, 49, { align: 'right' })
+
+  y = 62
+
+  const lines = opts.content.split('\n')
+  for (const raw of lines) {
+    if (y > 272) { doc.addPage(); y = margin + 4 }
+    const line = raw.trim()
+    if (!line) { y += 3; continue }
+
+    if (line.startsWith('### ')) {
+      const text = line.slice(4)
+      doc.setFontSize(9)
+      doc.setFont('helvetica', 'bold')
+      doc.setTextColor(...hex(ACCENT))
+      doc.text(text, margin + 6, y)
+      y += 6
+    } else if (line.startsWith('## ')) {
+      if (y > 260) { doc.addPage(); y = margin + 4 }
+      const text = line.slice(3)
+      doc.setFillColor(...hex(LIGHT))
+      doc.rect(margin, y - 4, contentW, 8, 'F')
+      doc.setFontSize(10)
+      doc.setFont('helvetica', 'bold')
+      doc.setTextColor(...hex(BRAND))
+      doc.text(text, margin + 3, y + 0.5)
+      y += 7
+    } else if (line.startsWith('# ')) {
+      if (y > 255) { doc.addPage(); y = margin + 4 }
+      const text = line.slice(2)
+      doc.setFillColor(...hex(BRAND))
+      doc.rect(margin, y - 5, contentW, 10, 'F')
+      doc.setFontSize(12)
+      doc.setFont('helvetica', 'bold')
+      doc.setTextColor(255, 255, 255)
+      doc.text(text, margin + 3, y + 1.5)
+      y += 10
+    } else if (line.startsWith('- ') || line.startsWith('* ')) {
+      const text = line.slice(2)
+      doc.setFontSize(9)
+      doc.setFont('helvetica', 'normal')
+      doc.setTextColor(...hex(GRAY))
+      const wrapped: string[] = doc.splitTextToSize(text, contentW - 10)
+      doc.text('•', margin + 3, y)
+      doc.text(wrapped, margin + 8, y)
+      y += wrapped.length * 5 + 1
+    } else if (/^\d+\.\s/.test(line)) {
+      const text = line
+      doc.setFontSize(9)
+      doc.setFont('helvetica', 'normal')
+      doc.setTextColor(...hex(GRAY))
+      const wrapped: string[] = doc.splitTextToSize(text, contentW - 6)
+      doc.text(wrapped, margin + 3, y)
+      y += wrapped.length * 5 + 1
+    } else if (line.startsWith('**') && line.endsWith('**')) {
+      doc.setFontSize(9)
+      doc.setFont('helvetica', 'bold')
+      doc.setTextColor(...hex(BRAND))
+      doc.text(line.replace(/\*\*/g, ''), margin + 3, y)
+      y += 5.5
+    } else {
+      const text = line.replace(/\*\*/g, '')
+      doc.setFontSize(9)
+      doc.setFont('helvetica', 'normal')
+      doc.setTextColor(...hex(GRAY))
+      const wrapped: string[] = doc.splitTextToSize(text, contentW - 3)
+      doc.text(wrapped, margin + 3, y)
+      y += wrapped.length * 5 + 1
+    }
+  }
+
+  // Footer
+  const pageCount = (doc as any).getNumberOfPages()
+  for (let i = 1; i <= pageCount; i++) {
+    doc.setPage(i)
+    doc.setFillColor(...hex(BRAND))
+    doc.rect(0, 292, W, 8, 'F')
+    doc.setTextColor(180, 210, 255)
+    doc.setFontSize(7)
+    doc.setFont('helvetica', 'normal')
+    doc.text(opts.facilityName ? `${opts.facilityName} · ${opts.title}` : opts.title, margin, 297.5)
+    doc.text(`Page ${i} of ${pageCount}`, W - margin, 297.5, { align: 'right' })
+  }
+
+  const filename = `${opts.title.replace(/\s+/g, '-').toLowerCase()}-${new Date().toISOString().slice(0, 10)}.pdf`
+  doc.save(filename)
+}
+
 function sectionHeader(doc: any, title: string, x: number, y: number, w: number) {
   doc.setFillColor(...hex(ACCENT))
   doc.roundedRect(x, y, w, 8, 1, 1, 'F')

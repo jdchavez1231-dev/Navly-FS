@@ -8,6 +8,8 @@ import { extractTextFromUrl } from '../lib/extractText'
 import { analyzeSOPWithClaude, generateSOPWithClaude, editSOPWithClaude } from '../lib/claudeApi'
 import type { SOPFormat } from '../lib/claudeApi'
 import { BRCGS_SECTIONS } from '../data/brcgs'
+import { generateSOPPDF } from '../lib/reportGenerator'
+import { loadFacilityProfile } from './Onboarding'
 
 const SOP_TYPES = [
   'Cleaning & Sanitation Procedure',
@@ -65,7 +67,7 @@ const STATUS_CONFIG = {
 }
 
 export default function SOPLibrary() {
-  const { facilityId } = useFacility()
+  const { facilityId, facility } = useFacility()
   const navigate = useNavigate()
   const [docs, setDocs] = useState<SOPDocument[]>([])
 
@@ -316,6 +318,7 @@ export default function SOPLibrary() {
         <SOPBuilderModal
           onClose={() => setShowBuilder(false)}
           facilityId={facilityId}
+          facilityName={facility?.name}
           onSaved={() => { loadDocs(); setShowBuilder(false) }}
         />
       )}
@@ -404,16 +407,21 @@ const FORMAT_OPTIONS: { id: SOPFormat; label: string; desc: string }[] = [
 function SOPBuilderModal({
   onClose,
   facilityId,
+  facilityName,
   onSaved,
 }: {
   onClose: () => void
   facilityId: string | null
+  facilityName?: string
   onSaved: () => void
 }) {
+  const profile = loadFacilityProfile()
   const [clauseId, setClauseId] = useState('')
   const [sopType, setSopType] = useState('')
-  const [facilityType, setFacilityType] = useState('')
-  const [context, setContext] = useState('')
+  const [facilityType, setFacilityType] = useState(profile?.facilityType ?? '')
+  const [context, setContext] = useState(
+    profile?.allergens?.length ? `Allergens on site: ${profile.allergens.join(', ')}.${profile.products ? ' Products: ' + profile.products + '.' : ''}` : ''
+  )
   const [format, setFormat] = useState<SOPFormat>('standard')
   const [logoUrl, setLogoUrl] = useState<string | null>(null)
   const logoRef = useRef<HTMLInputElement>(null)
@@ -515,14 +523,9 @@ function SOPBuilderModal({
     setTimeout(() => setCopied(false), 2000)
   }
 
-  function handleDownload() {
-    const blob = new Blob([result], { type: 'text/plain' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `SOP-${clauseId.replace(/\./g, '-')}-${sopType.split(' ')[0]}.txt`
-    a.click()
-    URL.revokeObjectURL(url)
+  async function handleDownload() {
+    const sopName = sopType || (selectedClause ? `Clause ${selectedClause.id}` : 'SOP')
+    await generateSOPPDF({ content: result, title: sopName, facilityName })
   }
 
   const selectCls = 'w-full border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500'
