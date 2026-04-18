@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
-import { AlertTriangle, CheckCircle2, Clock, Filter } from 'lucide-react'
+import { AlertTriangle, CheckCircle2, Clock, Filter, Plus } from 'lucide-react'
 import { useCorrectiveActions } from '../hooks/useCorrectiveActions'
 import { FullCAPAModal } from '../components/FullCAPAModal'
+import { ManualCAPAModal } from '../components/ManualCAPAModal'
 import type { CorrectiveAction, CAStatus } from '../types'
 
 const STATUS_CONFIG: Record<CAStatus, { label: string; dot: string }> = {
@@ -20,9 +21,10 @@ const SEVERITY_COLOR: Record<string, string> = {
 type FilterStatus = CAStatus | 'all'
 
 export default function CorrectiveActions() {
-  const { actions, loading, updateAction, stats } = useCorrectiveActions()
+  const { actions, loading, updateAction, createManualAction, stats } = useCorrectiveActions()
   const [filterStatus, setFilterStatus] = useState<FilterStatus>('all')
   const [selectedCA, setSelectedCA] = useState<CorrectiveAction | null>(null)
+  const [showNewCapa, setShowNewCapa] = useState(false)
 
   const filtered = filterStatus === 'all'
     ? actions
@@ -42,9 +44,18 @@ export default function CorrectiveActions() {
   return (
     <div className="h-full overflow-y-auto">
       <div className="max-w-4xl mx-auto px-6 py-8">
-        <div className="mb-6">
-          <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">Corrective Actions</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Track and manage non-conformances to closure</p>
+        <div className="mb-6 flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">Corrective Actions</h1>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Track and manage non-conformances to closure</p>
+          </div>
+          <button
+            onClick={() => setShowNewCapa(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors shrink-0"
+          >
+            <Plus className="w-4 h-4" />
+            New CAPA
+          </button>
         </div>
 
         {/* Summary cards */}
@@ -79,7 +90,7 @@ export default function CorrectiveActions() {
           <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-12 text-center">
             <CheckCircle2 className="w-8 h-8 text-gray-200 mx-auto mb-2" />
             <p className="text-sm text-gray-400">
-              {filterStatus === 'all' ? 'No corrective actions yet — they\'re auto-created when gaps are identified.' : `No ${filterStatus.replace('_', ' ')} actions.`}
+              {filterStatus === 'all' ? 'No corrective actions yet — create one manually or identify gaps in the BRCGS Tracker.' : `No ${filterStatus.replace('_', ' ')} actions.`}
             </p>
           </div>
         ) : (
@@ -102,7 +113,12 @@ export default function CorrectiveActions() {
                   return (
                     <tr key={ca.id} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                       <td className="px-5 py-3.5">
-                        <div className="font-mono text-xs text-gray-400 mb-0.5">{ca.element_code}</div>
+                        <div className="font-mono text-xs text-gray-400 mb-0.5">
+                          {ca.checklist_id === 'manual'
+                            ? <span className="text-blue-500 not-italic font-sans">{ca.element_code}</span>
+                            : ca.element_code
+                          }
+                        </div>
                         <div className="text-sm text-gray-800 dark:text-gray-200 font-medium leading-snug">{ca.element_name}</div>
                       </td>
                       <td className="px-5 py-3.5">
@@ -154,6 +170,35 @@ export default function CorrectiveActions() {
             setSelectedCA(prev => prev ? { ...prev, ...patch } : null)
           }}
           onClose={() => setSelectedCA(null)}
+        />
+      )}
+
+      {showNewCapa && (
+        <ManualCAPAModal
+          onClose={() => setShowNewCapa(false)}
+          onSave={async params => {
+            const ca = await createManualAction({
+              category: params.category,
+              title: params.title,
+              severity: params.severity,
+              description: params.description,
+              assigned_to: params.assigned_to,
+              due_date: params.due_date,
+            })
+            if (ca) {
+              await updateAction(ca.id, {
+                rca_framework: params.rca_framework,
+                rca_data: params.rca_data as any,
+                immediate_action: params.immediate_action,
+                root_cause: params.root_cause,
+                corrective_action: params.corrective_action,
+                preventive_action: params.preventive_action,
+                verification_method: params.verification_method,
+                verified_by: params.verified_by,
+              })
+            }
+            setShowNewCapa(false)
+          }}
         />
       )}
     </div>

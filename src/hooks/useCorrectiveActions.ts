@@ -78,6 +78,50 @@ export function useCorrectiveActions() {
     return null
   }, [facilityId])
 
+  const createManualAction = useCallback(async (params: {
+    category: string
+    title: string
+    severity: Rating
+    description?: string
+    assigned_to?: string
+    due_date?: string
+  }): Promise<CorrectiveAction | null> => {
+    if (!facilityId) return null
+    const { data } = await supabase
+      .from('corrective_actions')
+      .insert({
+        facility_id: facilityId,
+        checklist_id: 'manual',
+        element_code: params.category,
+        element_name: params.title,
+        severity: params.severity,
+        status: 'open',
+        identified_at: new Date().toISOString(),
+        assigned_to: params.assigned_to ?? '',
+        due_date: params.due_date ?? null,
+        description: params.description ?? '',
+        rca_framework: 'narrative',
+        rca_data: {},
+        immediate_action: '',
+        root_cause: '',
+        corrective_action: '',
+        preventive_action: '',
+        verification_method: '',
+        verified_by: '',
+        verified_at: null,
+        closed_at: null,
+      })
+      .select('*')
+      .single()
+
+    if (data) {
+      const ca = data as CorrectiveAction
+      setActions(prev => [ca, ...prev])
+      return ca
+    }
+    return null
+  }, [facilityId])
+
   const updateAction = useCallback(async (id: string, patch: Partial<CorrectiveAction>) => {
     const updates = { ...patch, updated_at: new Date().toISOString() }
 
@@ -107,5 +151,5 @@ export function useCorrectiveActions() {
     closed: actions.filter(a => a.status === 'closed' || a.status === 'verified').length,
   }
 
-  return { actions, loading, createAction, updateAction, getByClause, stats, reload: load }
+  return { actions, loading, createAction, createManualAction, updateAction, getByClause, stats, reload: load }
 }
