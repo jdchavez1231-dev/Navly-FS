@@ -120,7 +120,7 @@ export default function Dashboard() {
                 <button
                   key={c.id}
                   onClick={() => navigate(`/tracker/${c.id.split('.')[0]}`)}
-                  className="flex items-center gap-2 text-xs text-red-700 hover:text-red-900 hover:underline"
+                  className="flex items-center gap-2 text-xs text-red-700 hover:text-red-900 hover:underline cursor-pointer"
                 >
                   <span className="font-mono font-semibold">{c.id}</span>
                   <span>{c.title}</span>
@@ -135,7 +135,7 @@ export default function Dashboard() {
           <div className="mb-8 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
             <div className="px-5 py-4 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
               <h2 className="text-sm font-semibold text-gray-900 dark:text-white">Corrective Actions</h2>
-              <button onClick={() => navigate('/corrective-actions')} className="text-xs text-blue-600 hover:underline">
+              <button onClick={() => navigate('/corrective-actions')} className="text-xs text-blue-600 hover:underline cursor-pointer">
                 View all →
               </button>
             </div>
@@ -168,7 +168,7 @@ export default function Dashboard() {
                 <button
                   key={section.id}
                   onClick={() => navigate(`/tracker/${section.id}`)}
-                  className="w-full flex items-center gap-4 px-5 py-3.5 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-left"
+                  className="w-full flex items-center gap-4 px-5 py-3.5 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-left cursor-pointer"
                 >
                   <span className="text-xs font-mono text-gray-400 w-4 shrink-0">{section.id}</span>
                   <span className="text-sm text-gray-800 dark:text-gray-200 flex-1 min-w-0 truncate">{section.title}</span>
@@ -205,7 +205,7 @@ export default function Dashboard() {
             <p className="text-sm text-gray-500 dark:text-gray-400">No clauses assessed yet.</p>
             <button
               onClick={() => navigate('/tracker/1')}
-              className="mt-2 text-sm text-blue-600 hover:underline"
+              className="mt-2 text-sm text-blue-600 hover:underline cursor-pointer"
             >
               Start with Section 1 →
             </button>

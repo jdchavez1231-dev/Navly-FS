@@ -63,7 +63,7 @@ export default function Tracker() {
                 navigate(`/tracker/${section.id}`)
                 setExpandedId(null)
               }}
-              className={`w-full text-left px-4 py-3 border-b border-gray-50 dark:border-gray-700/50 transition-colors ${
+              className={`w-full text-left px-4 py-3 border-b border-gray-50 dark:border-gray-700/50 transition-colors cursor-pointer ${
                 isActive
                   ? 'bg-blue-50 dark:bg-blue-900/20 border-l-2 border-l-blue-600'
                   : 'hover:bg-gray-50 dark:hover:bg-gray-700/50 border-l-2 border-l-transparent'

@@ -3,6 +3,13 @@ import { Link, useNavigate } from 'react-router-dom'
 import { Eye, EyeOff } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 
+function friendlyAuthError(msg: string): string {
+  if (msg.includes('Invalid login credentials')) return 'Incorrect email or password.'
+  if (msg.includes('Email not confirmed')) return 'Please confirm your email before signing in.'
+  if (msg.includes('Too many requests')) return 'Too many attempts. Please wait a moment and try again.'
+  return msg
+}
+
 export default function Login() {
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
@@ -21,7 +28,7 @@ export default function Login() {
     const { error } = await supabase.auth.signInWithPassword({ email, password })
 
     if (error) {
-      setError(error.message)
+      setError(friendlyAuthError(error.message))
       setLoading(false)
     } else {
       navigate('/dashboard')
@@ -47,8 +54,9 @@ export default function Login() {
           )}
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email</label>
             <input
+              id="email"
               type="email"
               required
               autoComplete="email"
@@ -60,9 +68,10 @@ export default function Login() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">Password</label>
             <div className="relative">
               <input
+                id="password"
                 type={showPassword ? 'text' : 'password'}
                 required
                 autoComplete="current-password"

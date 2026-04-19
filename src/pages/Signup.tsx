@@ -83,8 +83,9 @@ export default function Signup() {
           )}
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Full name</label>
+            <label htmlFor="full-name" className="block text-sm font-medium text-gray-700 mb-1">Full name</label>
             <input
+              id="full-name"
               type="text"
               required
               autoComplete="name"
@@ -96,8 +97,9 @@ export default function Signup() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Facility name</label>
+            <label htmlFor="facility-name" className="block text-sm font-medium text-gray-700 mb-1">Facility name</label>
             <input
+              id="facility-name"
               type="text"
               required
               autoComplete="organization"
@@ -109,8 +111,9 @@ export default function Signup() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email</label>
             <input
+              id="email"
               type="email"
               required
               autoComplete="email"
@@ -122,9 +125,10 @@ export default function Signup() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">Password</label>
             <div className="relative">
               <input
+                id="password"
                 type={showPassword ? 'text' : 'password'}
                 required
                 minLength={8}

@@ -1,5 +1,6 @@
+import { useState } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
-import { LayoutDashboard, ClipboardCheck, FolderOpen, Settings, LogOut, AlertTriangle, Sun, Moon, FileEdit } from 'lucide-react'
+import { LayoutDashboard, ClipboardCheck, FolderOpen, Settings, LogOut, AlertTriangle, Sun, Moon, FileEdit, Menu } from 'lucide-react'
 import { useAuth } from '../lib/AuthContext'
 import { useFacility } from '../hooks/useFacility'
 import { useDarkMode } from '../hooks/useDarkMode'
@@ -8,20 +9,44 @@ export default function Layout() {
   const { user, signOut } = useAuth()
   const { facility } = useFacility()
   const { dark, toggle } = useDarkMode()
+  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   const linkClass = ({ isActive }: { isActive: boolean }) =>
     `flex items-center gap-2.5 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
       isActive
         ? 'bg-[#0F6E56]/10 text-[#0F6E56]'
-        : 'text-gray-400 hover:bg-white/5 hover:text-white'
+        : 'text-gray-300 hover:bg-white/5 hover:text-white'
     }`
 
   const initials = (user?.email ?? '?').slice(0, 2).toUpperCase()
+  const closeSidebar = () => setSidebarOpen(false)
 
   return (
     <div className="flex h-[100dvh] bg-gray-50 dark:bg-gray-900 overflow-hidden">
-      {/* Sidebar */}
-      <aside aria-label="Application sidebar" className="w-52 shrink-0 bg-[#0A2340] flex flex-col">
+      {/* Skip link */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:px-4 focus:py-2 focus:bg-white focus:text-[#0F6E56] focus:rounded-lg focus:shadow-lg focus:text-sm focus:font-medium"
+      >
+        Skip to main content
+      </a>
+
+      {/* Mobile backdrop */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 z-30 bg-black/50 lg:hidden"
+          aria-hidden="true"
+          onClick={closeSidebar}
+        />
+      )}
+
+      {/* Sidebar — fixed overlay on mobile, static on desktop */}
+      <aside
+        aria-label="Application sidebar"
+        className={`fixed inset-y-0 left-0 z-40 w-52 bg-[#0A2340] flex flex-col transition-transform duration-200 lg:static lg:translate-x-0 lg:z-auto ${
+          sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+        }`}
+      >
         <div className="px-5 py-5 border-b border-white/10 flex items-center gap-2.5">
           <div className="w-7 h-7 bg-emerald-500 rounded-lg flex items-center justify-center shrink-0">
             <span className="text-white font-bold text-xs">N</span>
@@ -32,27 +57,27 @@ export default function Layout() {
           </div>
         </div>
         <nav aria-label="Main navigation" className="flex-1 p-3 space-y-1">
-          <NavLink to="/dashboard" className={linkClass}>
+          <NavLink to="/dashboard" className={linkClass} onClick={closeSidebar}>
             <LayoutDashboard className="w-4 h-4" />
             Dashboard
           </NavLink>
-          <NavLink to="/tracker" className={linkClass}>
+          <NavLink to="/tracker" className={linkClass} onClick={closeSidebar}>
             <ClipboardCheck className="w-4 h-4" />
             BRCGS Tracker
           </NavLink>
-          <NavLink to="/sop-library" className={linkClass}>
+          <NavLink to="/sop-library" className={linkClass} onClick={closeSidebar}>
             <FolderOpen className="w-4 h-4" />
             SOP Library
           </NavLink>
-          <NavLink to="/corrective-actions" className={linkClass}>
+          <NavLink to="/corrective-actions" className={linkClass} onClick={closeSidebar}>
             <AlertTriangle className="w-4 h-4" />
             Corrective Actions
           </NavLink>
-          <NavLink to="/documents" className={linkClass}>
+          <NavLink to="/documents" className={linkClass} onClick={closeSidebar}>
             <FileEdit className="w-4 h-4" />
             Documents
           </NavLink>
-          <NavLink to="/settings" className={linkClass}>
+          <NavLink to="/settings" className={linkClass} onClick={closeSidebar}>
             <Settings className="w-4 h-4" />
             Settings
           </NavLink>
@@ -60,7 +85,7 @@ export default function Layout() {
         <div className="p-3 border-t border-white/10">
           <button
             onClick={signOut}
-            className="flex items-center gap-2.5 w-full px-3 py-2 rounded-md text-sm font-medium text-gray-400 hover:bg-white/5 hover:text-white transition-colors"
+            className="flex items-center gap-2.5 w-full px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:bg-white/5 hover:text-white transition-colors cursor-pointer"
           >
             <LogOut className="w-4 h-4" />
             Sign out
@@ -69,18 +94,27 @@ export default function Layout() {
       </aside>
 
       {/* Main */}
-      <div className="flex-1 overflow-hidden flex flex-col">
+      <div className="flex-1 overflow-hidden flex flex-col min-w-0">
         {/* Top bar */}
-        <header className="h-14 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between px-6 shrink-0">
-          <span className="text-sm font-medium text-gray-700 dark:text-gray-300 truncate">
-            {facility?.name ?? ''}
-          </span>
+        <header className="h-14 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between px-4 lg:px-6 shrink-0">
+          <div className="flex items-center gap-3 min-w-0">
+            <button
+              onClick={() => setSidebarOpen(true)}
+              aria-label="Open navigation menu"
+              className="lg:hidden w-8 h-8 rounded-md flex items-center justify-center text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300 truncate">
+              {facility?.name ?? ''}
+            </span>
+          </div>
           <div className="flex items-center gap-3">
             {facility?.audit_date && <AuditCountdown date={facility.audit_date} />}
             <button
               onClick={toggle}
               aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'}
-              className="w-8 h-8 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              className="w-8 h-8 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer"
             >
               {dark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </button>
@@ -90,7 +124,7 @@ export default function Layout() {
           </div>
         </header>
 
-        <main className="flex-1 overflow-hidden flex flex-col">
+        <main id="main-content" className="flex-1 overflow-hidden flex flex-col">
           <Outlet />
         </main>
       </div>
