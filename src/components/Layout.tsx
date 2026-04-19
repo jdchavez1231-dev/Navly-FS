@@ -43,7 +43,7 @@ export default function Layout() {
       <aside
         data-open={String(sidebarOpen)}
         aria-label="Application sidebar"
-        className="app-sidebar fixed inset-y-0 left-0 z-40 w-56 bg-white dark:bg-gray-900 flex flex-col shrink-0 border-r border-gray-100 dark:border-gray-800 shadow-xl shadow-blue-900/5"
+        className="app-sidebar fixed inset-y-0 left-0 z-40 w-56 bg-gradient-to-b from-white to-gray-50/60 dark:from-gray-900 dark:to-gray-900 flex flex-col shrink-0 border-r border-gray-100 dark:border-gray-800 shadow-[4px_0_24px_rgba(15,23,42,0.06)]"
       >
         <div className="h-14 px-4 flex items-center gap-3 border-b border-gray-100 dark:border-gray-800">
           <div className="w-8 h-8 bg-blue-600 rounded-xl flex items-center justify-center shrink-0 shadow-md shadow-blue-600/30">
@@ -71,7 +71,7 @@ export default function Layout() {
               className={({ isActive }) =>
                 `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 ${
                   isActive
-                    ? 'bg-blue-600 text-white shadow-md shadow-blue-600/25'
+                    ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-[0_2px_8px_rgba(37,99,235,0.35)] ring-1 ring-blue-500/30'
                     : 'text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/60 hover:text-gray-900 dark:hover:text-white'
                 }`
               }

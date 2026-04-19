@@ -11,11 +11,12 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
-  background-color: #F0F5FF;
+  background: linear-gradient(145deg, #E8EFFF 0%, #F4F7FF 50%, #EBF2FF 100%);
+  background-attachment: fixed;
 }
 
 .dark body {
-  background-color: #030712;
+  background: #030712;
 }
 
 @media (prefers-reduced-motion: reduce) {

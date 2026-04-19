@@ -54,7 +54,7 @@ const ALLERGENS = [
 
 const inputCls = 'w-full border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500'
 const labelCls = 'block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5'
-const cardCls = 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5'
+const cardCls = 'bg-white dark:bg-gray-900 rounded-2xl shadow-card p-5'
 const sectionLabelCls = 'text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-4'
 
 function Field({ label, value, onChange, placeholder, type = 'text' }: {

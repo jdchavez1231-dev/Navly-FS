@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useId } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { AlertTriangle, CheckCircle, Clock, MinusCircle, CalendarDays, Download, Loader2 } from 'lucide-react'
 import { useTracker } from '../hooks/useTracker'
@@ -67,10 +67,16 @@ export default function Dashboard() {
 
         {/* Score + stat cards */}
         <div className={`grid gap-4 mb-8 grid-cols-2 ${daysToAudit !== null && daysToAudit >= 0 ? 'sm:grid-cols-5' : 'sm:grid-cols-4'}`}>
-          <div className="col-span-1 bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl p-5 flex flex-col items-center justify-center shadow-md shadow-blue-600/20">
-            <div className="text-4xl font-bold text-white">{score}%</div>
-            <div className="text-xs text-blue-200 mt-1 text-center">Compliance score</div>
-            <div className="text-xs text-blue-300/70 mt-0.5">of assessed clauses</div>
+          <div className="col-span-1 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 rounded-2xl p-4 flex flex-col items-center justify-center shadow-card-blue relative overflow-hidden">
+            <div className="absolute -top-5 -right-5 w-20 h-20 rounded-full bg-white/5" />
+            <div className="absolute -bottom-6 -left-6 w-24 h-24 rounded-full bg-white/5" />
+            <div className="relative">
+              <ProgressRing pct={score} />
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <span className="text-2xl font-bold text-white leading-none">{score}%</span>
+              </div>
+            </div>
+            <div className="text-xs text-blue-100 mt-2 font-medium">Compliance</div>
           </div>
 
           <StatCard
@@ -95,7 +101,7 @@ export default function Dashboard() {
             color="amber"
           />
           {daysToAudit !== null && daysToAudit >= 0 && (
-            <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm p-5 flex flex-col items-center justify-center col-span-1">
+            <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-card p-5 flex flex-col items-center justify-center col-span-1">
               <CalendarDays className="w-5 h-5 text-blue-400 mb-1" />
               <div className="text-2xl font-semibold text-gray-900 dark:text-white">{daysToAudit}</div>
               <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Days to audit</div>
@@ -132,7 +138,7 @@ export default function Dashboard() {
 
         {/* Corrective actions summary */}
         {actions.length > 0 && (
-          <div className="mb-8 bg-white dark:bg-gray-900 rounded-2xl shadow-sm overflow-hidden">
+          <div className="mb-8 bg-white dark:bg-gray-900 rounded-2xl shadow-card overflow-hidden">
             <div className="px-5 py-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
               <h2 className="text-sm font-semibold text-gray-900 dark:text-white">Corrective Actions</h2>
               <button onClick={() => navigate('/corrective-actions')} className="text-xs text-blue-600 hover:underline cursor-pointer">
@@ -156,7 +162,7 @@ export default function Dashboard() {
         )}
 
         {/* Section breakdown */}
-        <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm overflow-hidden">
+        <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-card overflow-hidden">
           <div className="px-5 py-4 border-b border-gray-100 dark:border-gray-800">
             <h2 className="text-sm font-semibold text-gray-900 dark:text-white">Section breakdown</h2>
           </div>
@@ -216,6 +222,30 @@ export default function Dashboard() {
   )
 }
 
+function ProgressRing({ pct }: { pct: number }) {
+  const id = useId()
+  const r = 30
+  const circ = 2 * Math.PI * r
+  const offset = circ - (pct / 100) * circ
+  return (
+    <svg width="76" height="76" aria-hidden="true" className="-rotate-90">
+      <defs>
+        <linearGradient id={`ring-grad-${id}`} x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stopColor="rgba(255,255,255,0.6)" />
+          <stop offset="100%" stopColor="white" />
+        </linearGradient>
+      </defs>
+      <circle cx="38" cy="38" r={r} fill="none" stroke="rgba(255,255,255,0.18)" strokeWidth="5.5" />
+      <circle cx="38" cy="38" r={r} fill="none"
+        stroke={`url(#ring-grad-${id})`} strokeWidth="5.5"
+        strokeDasharray={circ} strokeDashoffset={offset}
+        strokeLinecap="round"
+        style={{ transition: 'stroke-dashoffset 0.8s cubic-bezier(.4,0,.2,1)' }}
+      />
+    </svg>
+  )
+}
+
 function StatCard({
   icon,
   label,
@@ -237,7 +267,7 @@ function StatCard({
   }[color]
   const pct = total > 0 ? (value / total) * 100 : 0
   return (
-    <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm p-5">
+    <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-card p-5">
       <div className={`w-8 h-8 rounded-xl ${iconBg} flex items-center justify-center mb-3`}>
         {icon}
       </div>
