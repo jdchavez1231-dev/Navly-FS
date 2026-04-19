@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import {
   Building2, Users, CreditCard, Save, Loader2, Mail, Trash2, Crown,
   Sun, Moon, Monitor, CheckSquare, Square, Sparkles, ShieldCheck,
-  ChevronRight, AlertTriangle
+  ChevronRight, AlertTriangle, Bell, Key
 } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { useFacility } from '../hooks/useFacility'
@@ -11,7 +11,7 @@ import { useDarkMode } from '../hooks/useDarkMode'
 import { loadFacilityProfile, saveFacilityProfile } from './Onboarding'
 import type { FacilityProfile } from './Onboarding'
 
-type Tab = 'facility' | 'team' | 'appearance' | 'billing'
+type Tab = 'facility' | 'team' | 'appearance' | 'billing' | 'notifications' | 'account'
 
 type FacilityData = {
   id: string
@@ -544,13 +544,291 @@ function BillingTab({ facilityId }: { facilityId: string }) {
   )
 }
 
+// ── Toggle ───────────────────────────────────────────────────────────────────
+
+function Toggle({ label, desc, checked, onToggle }: {
+  label: string; desc: string; checked: boolean; onToggle: () => void
+}) {
+  return (
+    <div className="flex items-center justify-between gap-4">
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-medium text-gray-800 dark:text-gray-200">{label}</p>
+        <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">{desc}</p>
+      </div>
+      <button
+        onClick={onToggle}
+        role="switch"
+        aria-checked={checked}
+        className={`relative w-10 h-5 rounded-full transition-colors shrink-0 cursor-pointer ${
+          checked ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-700'
+        }`}
+      >
+        <span className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow-sm transition-transform ${
+          checked ? 'translate-x-5' : 'translate-x-0.5'
+        }`} />
+      </button>
+    </div>
+  )
+}
+
+// ── Notifications Tab ─────────────────────────────────────────────────────────
+
+type NotifPrefs = {
+  auditReminder90: boolean
+  auditReminder60: boolean
+  auditReminder30: boolean
+  capaOverdue: boolean
+  weeklySummary: boolean
+  teamActivity: boolean
+}
+
+const DEFAULT_PREFS: NotifPrefs = {
+  auditReminder90: false,
+  auditReminder60: true,
+  auditReminder30: true,
+  capaOverdue: true,
+  weeklySummary: false,
+  teamActivity: false,
+}
+
+function NotificationsTab() {
+  const [prefs, setPrefs] = useState<NotifPrefs>(() => {
+    try { return { ...DEFAULT_PREFS, ...JSON.parse(localStorage.getItem('navly_notif_prefs') ?? '{}') } }
+    catch { return DEFAULT_PREFS }
+  })
+  const [saved, setSaved] = useState(false)
+
+  function toggle(key: keyof NotifPrefs) {
+    setPrefs(p => ({ ...p, [key]: !p[key] }))
+  }
+
+  function save() {
+    localStorage.setItem('navly_notif_prefs', JSON.stringify(prefs))
+    setSaved(true)
+    setTimeout(() => setSaved(false), 2500)
+  }
+
+  return (
+    <div className="space-y-5">
+      <div className={cardCls}>
+        <p className={sectionLabelCls}>Audit reminders</p>
+        <div className="space-y-5">
+          <Toggle
+            label="90 days before audit"
+            desc="Early heads-up to begin preparation and gap review"
+            checked={prefs.auditReminder90}
+            onToggle={() => toggle('auditReminder90')}
+          />
+          <Toggle
+            label="60 days before audit"
+            desc="Mid-range reminder to accelerate gap closure and CAPA work"
+            checked={prefs.auditReminder60}
+            onToggle={() => toggle('auditReminder60')}
+          />
+          <Toggle
+            label="30 days before audit"
+            desc="Final push — close open items, complete evidence uploads"
+            checked={prefs.auditReminder30}
+            onToggle={() => toggle('auditReminder30')}
+          />
+        </div>
+      </div>
+
+      <div className={cardCls}>
+        <p className={sectionLabelCls}>Activity alerts</p>
+        <div className="space-y-5">
+          <Toggle
+            label="Overdue CAPA alerts"
+            desc="Email when a corrective action passes its due date without closure"
+            checked={prefs.capaOverdue}
+            onToggle={() => toggle('capaOverdue')}
+          />
+          <Toggle
+            label="Weekly compliance summary"
+            desc="Every Monday: compliance score, open CAPAs, clauses assessed this week"
+            checked={prefs.weeklySummary}
+            onToggle={() => toggle('weeklySummary')}
+          />
+          <Toggle
+            label="Team activity"
+            desc="Notify when a team member updates a clause or closes a CAPA"
+            checked={prefs.teamActivity}
+            onToggle={() => toggle('teamActivity')}
+          />
+        </div>
+      </div>
+
+      <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800/40 rounded-xl p-4 flex items-start gap-3">
+        <Bell className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+        <div>
+          <p className="text-sm font-medium text-amber-800 dark:text-amber-300 mb-0.5">Email delivery coming soon</p>
+          <p className="text-xs text-amber-600 dark:text-amber-400">Your preferences are saved locally. Email delivery will be enabled once the notification service is live.</p>
+        </div>
+      </div>
+
+      <button onClick={save}
+        className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors">
+        {saved ? <><CheckSquare className="w-4 h-4" /> Saved!</> : <><Save className="w-4 h-4" /> Save preferences</>}
+      </button>
+    </div>
+  )
+}
+
+// ── Account Tab ───────────────────────────────────────────────────────────────
+
+function AccountTab({ facilityId }: { facilityId: string }) {
+  const { user, signOut } = useAuth()
+  const [pwForm, setPwForm] = useState({ next: '', confirm: '' })
+  const [pwSaving, setPwSaving] = useState(false)
+  const [pwError, setPwError] = useState('')
+  const [pwSaved, setPwSaved] = useState(false)
+  const [email, setEmail] = useState(user?.email ?? '')
+  const [emailSaving, setEmailSaving] = useState(false)
+  const [emailMsg, setEmailMsg] = useState('')
+  const [emailError, setEmailError] = useState('')
+  const [deleteConfirm, setDeleteConfirm] = useState(false)
+  const [deleteText, setDeleteText] = useState('')
+  const [deleting, setDeleting] = useState(false)
+
+  async function handlePasswordChange() {
+    if (pwForm.next.length < 8) { setPwError('Password must be at least 8 characters'); return }
+    if (pwForm.next !== pwForm.confirm) { setPwError('Passwords do not match'); return }
+    setPwSaving(true); setPwError('')
+    const { error } = await supabase.auth.updateUser({ password: pwForm.next })
+    setPwSaving(false)
+    if (error) { setPwError(error.message); return }
+    setPwForm({ next: '', confirm: '' })
+    setPwSaved(true); setTimeout(() => setPwSaved(false), 3000)
+  }
+
+  async function handleEmailChange() {
+    if (!email.includes('@')) { setEmailError('Enter a valid email'); return }
+    setEmailSaving(true); setEmailError(''); setEmailMsg('')
+    const { error } = await supabase.auth.updateUser({ email })
+    setEmailSaving(false)
+    if (error) { setEmailError(error.message); return }
+    setEmailMsg('Check your new email for a confirmation link.')
+  }
+
+  async function handleDelete() {
+    setDeleting(true)
+    await supabase.from('users').delete().eq('id', user!.id)
+    await supabase.from('facilities').delete().eq('id', facilityId)
+    await signOut()
+  }
+
+  return (
+    <div className="space-y-5">
+      {/* Account info */}
+      <div className={cardCls}>
+        <p className={sectionLabelCls}>Account</p>
+        <div className="flex items-center gap-4 mb-6">
+          <div className="w-14 h-14 rounded-2xl bg-blue-600 flex items-center justify-center text-xl font-bold text-white shrink-0 shadow-md shadow-blue-600/20">
+            {(user?.email ?? '?').slice(0, 2).toUpperCase()}
+          </div>
+          <div>
+            <p className="text-sm font-semibold text-gray-900 dark:text-white">{user?.email}</p>
+            <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
+              Member since {new Date(user?.created_at ?? Date.now()).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+            </p>
+          </div>
+        </div>
+        <div className="space-y-2">
+          <label className={labelCls}>Email address</label>
+          <div className="flex gap-2">
+            <input type="email" value={email} onChange={e => setEmail(e.target.value)} className={inputCls} />
+            <button onClick={handleEmailChange} disabled={emailSaving || email === user?.email}
+              className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium disabled:opacity-50 transition-colors shrink-0 cursor-pointer">
+              {emailSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+              Update
+            </button>
+          </div>
+          {emailError && <p className="text-xs text-red-600">{emailError}</p>}
+          {emailMsg && <p className="text-xs text-green-600">{emailMsg}</p>}
+        </div>
+      </div>
+
+      {/* Change password */}
+      <div className={cardCls}>
+        <p className={sectionLabelCls}>Change password</p>
+        <div className="space-y-3">
+          <div>
+            <label className={labelCls}>New password</label>
+            <input type="password" value={pwForm.next} onChange={e => setPwForm(p => ({ ...p, next: e.target.value }))}
+              placeholder="Min. 8 characters" className={inputCls} />
+          </div>
+          <div>
+            <label className={labelCls}>Confirm new password</label>
+            <input type="password" value={pwForm.confirm} onChange={e => setPwForm(p => ({ ...p, confirm: e.target.value }))}
+              placeholder="Repeat new password" className={inputCls} />
+          </div>
+          {pwError && <p className="text-xs text-red-600">{pwError}</p>}
+          <button onClick={handlePasswordChange} disabled={pwSaving || !pwForm.next}
+            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg text-sm font-medium disabled:opacity-50 transition-colors cursor-pointer">
+            {pwSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Key className="w-4 h-4" />}
+            {pwSaved ? '✓ Password updated' : 'Update password'}
+          </button>
+        </div>
+      </div>
+
+      {/* Danger zone */}
+      <div className="bg-white dark:bg-gray-800 border border-red-200 dark:border-red-800/50 rounded-xl p-5">
+        <p className="text-xs font-semibold text-red-500 uppercase tracking-widest mb-4">Danger zone</p>
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <p className="text-sm font-medium text-gray-900 dark:text-white">Delete account</p>
+            <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">Permanently remove your account and all facility data. This cannot be undone.</p>
+          </div>
+          <button onClick={() => setDeleteConfirm(true)}
+            className="flex items-center gap-1.5 border border-red-300 dark:border-red-800 text-red-600 dark:text-red-400 px-3 py-2 rounded-lg text-sm font-medium hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors shrink-0 cursor-pointer">
+            <Trash2 className="w-4 h-4" />
+            Delete
+          </button>
+        </div>
+      </div>
+
+      {deleteConfirm && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 px-4">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl w-full max-w-sm p-6">
+            <div className="flex items-center gap-2 mb-3">
+              <Trash2 className="w-5 h-5 text-red-500" />
+              <h3 className="text-base font-semibold text-gray-900 dark:text-white">Delete account?</h3>
+            </div>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+              This permanently deletes your account, facility profile, all SOPs, corrective actions, and compliance data. Type{' '}
+              <span className="font-mono font-bold text-gray-800 dark:text-gray-200">DELETE</span> to confirm.
+            </p>
+            <input value={deleteText} onChange={e => setDeleteText(e.target.value)}
+              placeholder="Type DELETE to confirm"
+              className={`${inputCls} mb-4`} />
+            <div className="flex gap-3">
+              <button onClick={() => { setDeleteConfirm(false); setDeleteText('') }}
+                className="flex-1 border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer">
+                Cancel
+              </button>
+              <button
+                disabled={deleteText !== 'DELETE' || deleting}
+                onClick={handleDelete}
+                className="flex-1 bg-red-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-red-700 disabled:opacity-40 transition-colors cursor-pointer">
+                {deleting ? 'Deleting…' : 'Delete forever'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 // ── Main Settings Page ────────────────────────────────────────────────────────
 
 const TABS: { id: Tab; label: string; icon: React.ElementType; desc: string }[] = [
-  { id: 'facility',   label: 'Facility',   icon: Building2,  desc: 'Profile, address & contact' },
-  { id: 'team',       label: 'Team',       icon: Users,      desc: 'Members & permissions' },
-  { id: 'appearance', label: 'Appearance', icon: Sun,        desc: 'Theme & display' },
-  { id: 'billing',    label: 'Billing',    icon: CreditCard, desc: 'Plan & features' },
+  { id: 'facility',      label: 'Facility',      icon: Building2,  desc: 'Profile, address & contact' },
+  { id: 'team',          label: 'Team',          icon: Users,      desc: 'Members & permissions' },
+  { id: 'notifications', label: 'Notifications', icon: Bell,       desc: 'Alerts & reminders' },
+  { id: 'appearance',    label: 'Appearance',    icon: Sun,        desc: 'Theme & display' },
+  { id: 'account',       label: 'Account',       icon: Key,        desc: 'Password & security' },
+  { id: 'billing',       label: 'Billing',       icon: CreditCard, desc: 'Plan & features' },
 ]
 
 export default function Settings() {
@@ -640,10 +918,12 @@ export default function Settings() {
             </div>
           </div>
 
-          {tab === 'facility'   && <FacilityTab facilityId={facilityId} />}
-          {tab === 'team'       && <TeamTab facilityId={facilityId} />}
-          {tab === 'appearance' && <AppearanceTab />}
-          {tab === 'billing'    && <BillingTab facilityId={facilityId} />}
+          {tab === 'facility'      && <FacilityTab facilityId={facilityId} />}
+          {tab === 'team'           && <TeamTab facilityId={facilityId} />}
+          {tab === 'notifications'  && <NotificationsTab />}
+          {tab === 'appearance'     && <AppearanceTab />}
+          {tab === 'account'        && <AccountTab facilityId={facilityId} />}
+          {tab === 'billing'        && <BillingTab facilityId={facilityId} />}
         </div>
       </div>
     </div>
