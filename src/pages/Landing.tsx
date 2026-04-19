@@ -41,8 +41,8 @@ function Navbar() {
       <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
         <div className="flex items-center gap-8">
           <Link to="/" className="flex items-center gap-2">
-            <div className="w-7 h-7 bg-[#0A2340] rounded-lg flex items-center justify-center">
-              <ShieldCheck className="w-4 h-4 text-emerald-400" />
+            <div className="w-7 h-7 bg-blue-600 rounded-xl flex items-center justify-center">
+              <ShieldCheck className="w-4 h-4 text-white" />
             </div>
             <span className="font-bold text-gray-900 text-base tracking-tight">Navly FS</span>
           </Link>
@@ -60,7 +60,7 @@ function Navbar() {
             Sign in
           </Link>
           <Link to="/signup"
-            className="text-sm font-semibold bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-lg transition-colors">
+            className="text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-full transition-colors">
             Get started free
           </Link>
         </div>
@@ -75,19 +75,19 @@ function Hero() {
   return (
     <section className="relative overflow-hidden bg-white pt-16 pb-20 md:pt-24 md:pb-28">
       {/* Subtle gradient backdrop */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_60%_-10%,rgba(16,185,129,0.08),transparent)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_60%_-10%,rgba(37,99,235,0.08),transparent)]" />
 
       <div className="relative max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center gap-12 md:gap-16">
         {/* Left */}
         <div className="flex-1 min-w-0">
-          <div className="inline-flex items-center gap-2 bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold px-3 py-1.5 rounded-full mb-6">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+          <div className="inline-flex items-center gap-2 bg-blue-50 border border-blue-200 text-blue-700 text-xs font-semibold px-3 py-1.5 rounded-full mb-6">
+            <span className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse" />
             BRCGS Issue 9 Ready
           </div>
 
           <h1 className="text-5xl md:text-6xl font-extrabold text-gray-900 leading-[1.1] tracking-tight mb-6">
             Audit Readiness,<br />
-            <span className="text-emerald-500">Powered by AI.</span>
+            <span className="text-blue-600">Powered by AI.</span>
           </h1>
 
           <p className="text-lg text-gray-500 leading-relaxed mb-8 max-w-lg">
@@ -96,12 +96,12 @@ function Hero() {
 
           <div className="flex items-center gap-4 flex-wrap">
             <Link to="/signup"
-              className="inline-flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold px-6 py-3 rounded-xl text-sm transition-colors shadow-lg shadow-emerald-500/20">
+              className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-full text-sm transition-colors shadow-lg shadow-blue-600/20">
               Request a demo
               <ArrowRight className="w-4 h-4" />
             </Link>
             <Link to="/login"
-              className="inline-flex items-center gap-2 text-gray-700 hover:text-gray-900 font-medium text-sm border border-gray-200 hover:border-gray-300 px-6 py-3 rounded-xl transition-colors">
+              className="inline-flex items-center gap-2 text-gray-700 hover:text-gray-900 font-medium text-sm border border-gray-200 hover:border-gray-300 px-6 py-3 rounded-full transition-colors">
               Take a tour
             </Link>
           </div>
@@ -130,13 +130,13 @@ function DashboardMockup() {
   return (
     <div className="bg-white rounded-2xl border border-gray-200 shadow-2xl shadow-gray-200/60 overflow-hidden">
       {/* Top bar */}
-      <div className="bg-[#0A2340] px-4 py-3 flex items-center justify-between">
+      <div className="bg-blue-600 px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="w-2 h-2 rounded-full bg-red-400" />
           <div className="w-2 h-2 rounded-full bg-yellow-400" />
           <div className="w-2 h-2 rounded-full bg-green-400" />
         </div>
-        <span className="text-xs text-white/50 font-mono">Navly FS Dashboard</span>
+        <span className="text-xs text-blue-200 font-mono">Navly FS Dashboard</span>
         <div />
       </div>
 
@@ -302,25 +302,25 @@ function AISection() {
   ]
 
   return (
-    <section className="py-24 bg-[#0A2340] overflow-hidden relative">
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_60%_at_70%_50%,rgba(99,102,241,0.25),transparent)]" />
+    <section className="py-24 bg-[#0B1628] overflow-hidden relative">
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_60%_at_70%_50%,rgba(37,99,235,0.2),transparent)]" />
 
       <div className="relative max-w-7xl mx-auto px-6 flex flex-col lg:flex-row items-center gap-16">
         {/* Left text */}
         <div className="flex-1 min-w-0">
           <div className="inline-flex items-center gap-2 bg-white/10 text-white/80 text-xs font-semibold px-3 py-1.5 rounded-full mb-6 border border-white/20">
-            <Sparkles className="w-3.5 h-3.5 text-violet-400" />
+            <Sparkles className="w-3.5 h-3.5 text-blue-400" />
             AI Agent
           </div>
           <h2 className="text-4xl md:text-5xl font-extrabold text-white leading-tight tracking-tight mb-6">
             Unblock work and unlock<br />potential with your<br />
-            <span className="text-violet-400">personal AI Auditor</span>
+            <span className="text-blue-400">personal AI Auditor</span>
           </h2>
           <p className="text-white/60 text-lg leading-relaxed mb-8 max-w-md">
             Ask anything about BRCGS requirements. Get instant, auditor-grade answers that help you prepare evidence, write non-conformances, and generate CAPAs — all in context of your specific clause.
           </p>
           <Link to="/signup"
-            className="inline-flex items-center gap-2 bg-violet-500 hover:bg-violet-600 text-white font-semibold px-6 py-3 rounded-xl text-sm transition-colors">
+            className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-full text-sm transition-colors">
             Try the AI assistant
             <ArrowRight className="w-4 h-4" />
           </Link>
@@ -330,7 +330,7 @@ function AISection() {
         <div className="flex-1 w-full max-w-lg">
           <div className="bg-white/5 border border-white/10 rounded-2xl p-5 backdrop-blur">
             <div className="flex items-center gap-2 mb-5 pb-4 border-b border-white/10">
-              <div className="w-7 h-7 rounded-full bg-violet-500 flex items-center justify-center">
+              <div className="w-7 h-7 rounded-full bg-blue-600 flex items-center justify-center">
                 <Bot className="w-4 h-4 text-white" />
               </div>
               <span className="text-sm font-medium text-white">BRCGS AI Assistant</span>
@@ -343,7 +343,7 @@ function AISection() {
                 <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                   <div className={`max-w-[85%] text-xs rounded-2xl px-3.5 py-2.5 leading-relaxed ${
                     m.role === 'user'
-                      ? 'bg-violet-500 text-white'
+                      ? 'bg-blue-600 text-white'
                       : 'bg-white/10 text-white/80'
                   }`}>
                     {m.text}
@@ -383,7 +383,7 @@ function WorkflowSection() {
   ]
 
   return (
-    <section id="how-it-works" className="py-24 bg-gray-50">
+    <section id="how-it-works" className="py-24 bg-[#F0F5FF]">
       <div className="max-w-7xl mx-auto px-6">
         <div className="flex flex-col lg:flex-row items-start gap-16">
           <div className="lg:w-80 shrink-0">
@@ -397,7 +397,7 @@ function WorkflowSection() {
               Turn daily compliance work into a continuous process. No more scrambling weeks before an audit.
             </p>
             <Link to="/signup"
-              className="inline-flex items-center gap-1.5 text-sm font-semibold text-emerald-600 hover:text-emerald-700 mt-6">
+              className="inline-flex items-center gap-1.5 text-sm font-semibold text-blue-600 hover:text-blue-700 mt-6">
               Learn more <ChevronRight className="w-4 h-4" />
             </Link>
           </div>
@@ -466,7 +466,7 @@ function Testimonials() {
           {testimonials.map(t => (
             <div key={t.name} className="bg-gray-50 rounded-2xl p-6 border border-gray-100">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-full bg-[#0A2340] flex items-center justify-center text-white text-xs font-bold">
+                <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white text-xs font-bold">
                   {t.avatar}
                 </div>
                 <div>
@@ -503,7 +503,7 @@ function Testimonials() {
 function IntegrationsBanner() {
   const integrations = ['BRCGS', 'SQF', 'FSSC 22000', 'ISO 22000', 'PDF Export', 'DOCX Import', 'Supabase', 'Claude AI']
   return (
-    <section className="py-20 bg-gradient-to-br from-indigo-600 to-violet-600 overflow-hidden">
+    <section className="py-20 bg-gradient-to-br from-blue-600 to-blue-700 overflow-hidden">
       <div className="max-w-7xl mx-auto px-6 text-center">
         <div className="inline-block bg-white/20 text-white text-xs font-semibold px-3 py-1.5 rounded-full mb-6 uppercase tracking-wide">
           Integrations
@@ -516,13 +516,13 @@ function IntegrationsBanner() {
         </p>
         <div className="flex flex-wrap items-center justify-center gap-3 mb-10">
           {integrations.map(i => (
-            <div key={i} className="bg-white/10 border border-white/20 text-white text-sm font-semibold px-4 py-2 rounded-xl backdrop-blur hover:bg-white/20 transition-colors">
+            <div key={i} className="bg-white/10 border border-white/20 text-white text-sm font-semibold px-4 py-2 rounded-full backdrop-blur hover:bg-white/20 transition-colors">
               {i}
             </div>
           ))}
         </div>
         <Link to="/signup"
-          className="inline-flex items-center gap-2 bg-white text-indigo-700 font-bold px-6 py-3 rounded-xl text-sm hover:bg-indigo-50 transition-colors shadow-xl">
+          className="inline-flex items-center gap-2 bg-white text-blue-700 font-bold px-6 py-3 rounded-full text-sm hover:bg-blue-50 transition-colors shadow-xl">
           Get started free
           <ArrowRight className="w-4 h-4" />
         </Link>
@@ -535,10 +535,10 @@ function IntegrationsBanner() {
 
 function FinalCTA() {
   return (
-    <section className="py-24 bg-white">
+    <section className="py-24 bg-[#F0F5FF]">
       <div className="max-w-3xl mx-auto px-6 text-center">
-        <div className="w-16 h-16 bg-emerald-50 rounded-2xl flex items-center justify-center mx-auto mb-6 border border-emerald-100">
-          <ShieldCheck className="w-8 h-8 text-emerald-500" />
+        <div className="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center mx-auto mb-6 border border-blue-100">
+          <ShieldCheck className="w-8 h-8 text-blue-600" />
         </div>
         <h2 className="text-4xl font-extrabold text-gray-900 tracking-tight mb-4">
           Your people are<br />your business
@@ -548,12 +548,12 @@ function FinalCTA() {
         </p>
         <div className="flex items-center justify-center gap-4 flex-wrap">
           <Link to="/signup"
-            className="inline-flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-8 py-3.5 rounded-xl text-sm transition-colors shadow-lg shadow-emerald-500/25">
+            className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 py-3.5 rounded-full text-sm transition-colors shadow-lg shadow-blue-600/25">
             Request a demo
             <ArrowRight className="w-4 h-4" />
           </Link>
           <Link to="/signup"
-            className="inline-flex items-center gap-2 border border-gray-200 text-gray-700 hover:bg-gray-50 font-semibold px-8 py-3.5 rounded-xl text-sm transition-colors">
+            className="inline-flex items-center gap-2 border border-gray-200 text-gray-700 hover:bg-gray-50 font-semibold px-8 py-3.5 rounded-full text-sm transition-colors">
             Take a free tour
           </Link>
         </div>
@@ -591,8 +591,8 @@ function Footer() {
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
             <div className="flex items-center gap-2 mb-3">
-              <div className="w-7 h-7 bg-[#0A2340] rounded-lg flex items-center justify-center">
-                <ShieldCheck className="w-4 h-4 text-emerald-400" />
+              <div className="w-7 h-7 bg-blue-600 rounded-xl flex items-center justify-center">
+                <ShieldCheck className="w-4 h-4 text-white" />
               </div>
               <span className="font-bold text-gray-900 text-sm">Navly FS</span>
             </div>

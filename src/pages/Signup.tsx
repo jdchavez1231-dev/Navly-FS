@@ -68,7 +68,7 @@ export default function Signup() {
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
-          <div className="w-7 h-7 bg-[#0A2340] rounded-lg flex items-center justify-center mx-auto mb-3">
+          <div className="w-7 h-7 bg-blue-600 rounded-xl flex items-center justify-center mx-auto mb-3">
             <span className="text-white font-bold text-xs">N</span>
           </div>
           <h1 className="text-xl font-bold text-gray-900 tracking-tight">Navly FS</h1>
@@ -91,7 +91,7 @@ export default function Signup() {
               autoComplete="name"
               value={form.fullName}
               onChange={set('fullName')}
-              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#0F6E56]"
+              className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Jane Smith"
             />
           </div>
@@ -105,7 +105,7 @@ export default function Signup() {
               autoComplete="organization"
               value={form.facilityName}
               onChange={set('facilityName')}
-              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#0F6E56]"
+              className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Acme Foods Inc."
             />
           </div>
@@ -119,7 +119,7 @@ export default function Signup() {
               autoComplete="email"
               value={form.email}
               onChange={set('email')}
-              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#0F6E56]"
+              className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="you@facility.com"
             />
           </div>
@@ -135,7 +135,7 @@ export default function Signup() {
                 autoComplete="new-password"
                 value={form.password}
                 onChange={set('password')}
-                className="w-full border border-gray-200 rounded-lg px-3 py-2 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-[#0F6E56]"
+                className="w-full border border-gray-200 rounded-xl px-3 py-2 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="Min. 8 characters"
               />
               <button
@@ -152,7 +152,7 @@ export default function Signup() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-emerald-500 text-white py-2.5 rounded-lg text-sm font-semibold hover:bg-emerald-600 disabled:opacity-50 transition-colors"
+            className="w-full bg-blue-600 text-white py-2.5 rounded-full text-sm font-semibold hover:bg-blue-700 disabled:opacity-50 transition-colors"
           >
             {loading ? 'Creating account…' : 'Create account'}
           </button>
