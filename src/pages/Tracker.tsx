@@ -45,9 +45,27 @@ export default function Tracker() {
   }
 
   return (
-    <div className="flex flex-1 overflow-hidden">
-      {/* Section sidebar */}
-      <aside className="w-60 shrink-0 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 overflow-y-auto">
+    <div className="flex flex-1 overflow-hidden flex-col lg:flex-row">
+      {/* Mobile section selector */}
+      <div className="lg:hidden bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-3 shrink-0">
+        <select
+          value={activeSectionId}
+          onChange={e => { navigate(`/tracker/${e.target.value}`); setExpandedId(null) }}
+          className="w-full border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          {BRCGS_SECTIONS.map(section => {
+            const s = getSectionStats(section, data)
+            return (
+              <option key={section.id} value={section.id}>
+                {section.id}. {section.title} ({s.compliant}/{s.total})
+              </option>
+            )
+          })}
+        </select>
+      </div>
+
+      {/* Desktop section sidebar */}
+      <aside className="hidden lg:block w-60 shrink-0 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 overflow-y-auto">
         <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-700">
           <div className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide">Sections</div>
         </div>

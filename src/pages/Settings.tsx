@@ -572,9 +572,29 @@ export default function Settings() {
   const ActiveIcon = TABS.find(t => t.id === tab)?.icon ?? Building2
 
   return (
-    <div className="flex-1 overflow-hidden flex">
-      {/* Sidebar */}
-      <aside className="w-56 shrink-0 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col">
+    <div className="flex-1 overflow-hidden flex flex-col lg:flex-row">
+      {/* Mobile tab strip */}
+      <div className="lg:hidden flex border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 overflow-x-auto shrink-0">
+        {TABS.map(t => {
+          const Icon = t.icon
+          const isActive = tab === t.id
+          return (
+            <button key={t.id} onClick={() => setTab(t.id)}
+              className={`flex flex-col items-center gap-1 px-5 py-3 text-xs font-medium shrink-0 border-b-2 transition-colors cursor-pointer ${
+                isActive
+                  ? 'border-blue-600 text-blue-600 dark:text-blue-400'
+                  : 'border-transparent text-gray-500 dark:text-gray-400'
+              }`}
+            >
+              <Icon className="w-4 h-4" />
+              {t.label}
+            </button>
+          )
+        })}
+      </div>
+
+      {/* Desktop sidebar */}
+      <aside className="hidden lg:flex flex-col w-56 shrink-0 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700">
         <div className="px-5 py-5 border-b border-gray-100 dark:border-gray-700">
           <h1 className="text-base font-semibold text-gray-900 dark:text-white">Settings</h1>
           <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">Manage your workspace</p>
