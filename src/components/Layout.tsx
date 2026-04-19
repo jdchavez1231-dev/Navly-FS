@@ -42,10 +42,9 @@ export default function Layout() {
 
       {/* Sidebar — fixed overlay on mobile, static on desktop */}
       <aside
+        data-open={String(sidebarOpen)}
         aria-label="Application sidebar"
-        className={`fixed inset-y-0 left-0 z-40 w-52 bg-[#0A2340] flex flex-col transition-transform duration-200 lg:static lg:translate-x-0 lg:z-auto ${
-          sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
-        }`}
+        className="app-sidebar fixed inset-y-0 left-0 z-40 w-52 bg-[#0A2340] flex flex-col shrink-0"
       >
         <div className="px-5 py-5 border-b border-white/10 flex items-center gap-2.5">
           <div className="w-7 h-7 bg-emerald-500 rounded-lg flex items-center justify-center shrink-0">

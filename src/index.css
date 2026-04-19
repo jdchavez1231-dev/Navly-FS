@@ -28,3 +28,19 @@ body {
   text-align: left;
   border: none;
 }
+
+/* Mobile sidebar drawer — not Tailwind-generated, must live here */
+.app-sidebar {
+  transform: translateX(-100%);
+  transition: transform 0.2s ease-in-out;
+}
+.app-sidebar[data-open="true"] {
+  transform: translateX(0);
+}
+@media (min-width: 1024px) {
+  .app-sidebar {
+    position: static !important;
+    transform: none !important;
+    z-index: auto !important;
+  }
+}
