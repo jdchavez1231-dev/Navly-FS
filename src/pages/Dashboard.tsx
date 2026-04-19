@@ -58,7 +58,7 @@ export default function Dashboard() {
           <button
             onClick={handleExportReport}
             disabled={exporting || loading}
-            className="flex items-center gap-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-40 transition-colors"
+            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-sm font-medium shadow-sm shadow-blue-600/25 disabled:opacity-40 transition-colors"
           >
             {exporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
             {exporting ? 'Generating…' : 'Download Report'}
@@ -67,10 +67,10 @@ export default function Dashboard() {
 
         {/* Score + stat cards */}
         <div className={`grid gap-4 mb-8 grid-cols-2 ${daysToAudit !== null && daysToAudit >= 0 ? 'sm:grid-cols-5' : 'sm:grid-cols-4'}`}>
-          <div className="col-span-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5 flex flex-col items-center justify-center">
-            <div className="text-4xl font-bold text-gray-900 dark:text-white">{score}%</div>
-            <div className="text-xs text-gray-500 dark:text-gray-400 mt-1 text-center">Compliance score</div>
-            <div className="text-xs text-gray-400 mt-0.5">of assessed clauses</div>
+          <div className="col-span-1 bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl p-5 flex flex-col items-center justify-center shadow-md shadow-blue-600/20">
+            <div className="text-4xl font-bold text-white">{score}%</div>
+            <div className="text-xs text-blue-200 mt-1 text-center">Compliance score</div>
+            <div className="text-xs text-blue-300/70 mt-0.5">of assessed clauses</div>
           </div>
 
           <StatCard
@@ -95,7 +95,7 @@ export default function Dashboard() {
             color="amber"
           />
           {daysToAudit !== null && daysToAudit >= 0 && (
-            <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5 flex flex-col items-center justify-center col-span-1">
+            <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm p-5 flex flex-col items-center justify-center col-span-1">
               <CalendarDays className="w-5 h-5 text-blue-400 mb-1" />
               <div className="text-2xl font-semibold text-gray-900 dark:text-white">{daysToAudit}</div>
               <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Days to audit</div>
@@ -105,7 +105,7 @@ export default function Dashboard() {
 
         {/* Critical gaps alert */}
         {fundamentalGaps.length > 0 && (
-          <div className="mb-8 bg-red-50 border border-red-200 rounded-xl p-4">
+          <div className="mb-8 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800/40 rounded-2xl p-4">
             <div className="flex items-center gap-2 mb-2">
               <AlertTriangle className="w-4 h-4 text-red-600" />
               <span className="text-sm font-semibold text-red-700">
@@ -132,14 +132,14 @@ export default function Dashboard() {
 
         {/* Corrective actions summary */}
         {actions.length > 0 && (
-          <div className="mb-8 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
-            <div className="px-5 py-4 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
+          <div className="mb-8 bg-white dark:bg-gray-900 rounded-2xl shadow-sm overflow-hidden">
+            <div className="px-5 py-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
               <h2 className="text-sm font-semibold text-gray-900 dark:text-white">Corrective Actions</h2>
               <button onClick={() => navigate('/corrective-actions')} className="text-xs text-blue-600 hover:underline cursor-pointer">
                 View all →
               </button>
             </div>
-            <div className="grid grid-cols-4 divide-x divide-gray-100 dark:divide-gray-700">
+            <div className="grid grid-cols-4 divide-x divide-gray-100 dark:divide-gray-800">
               {[
                 { label: 'Open', value: caStats.open, color: 'text-red-600' },
                 { label: 'In Progress', value: caStats.in_progress, color: 'text-amber-600' },
@@ -156,11 +156,11 @@ export default function Dashboard() {
         )}
 
         {/* Section breakdown */}
-        <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
-          <div className="px-5 py-4 border-b border-gray-100 dark:border-gray-700">
+        <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm overflow-hidden">
+          <div className="px-5 py-4 border-b border-gray-100 dark:border-gray-800">
             <h2 className="text-sm font-semibold text-gray-900 dark:text-white">Section breakdown</h2>
           </div>
-          <div className="divide-y divide-gray-100 dark:divide-gray-700">
+          <div className="divide-y divide-gray-100 dark:divide-gray-800">
             {BRCGS_SECTIONS.map(section => {
               const s = getSectionStats(section, data)
               const pct = s.assessed > 0 ? Math.round((s.compliant / s.assessed) * 100) : 0
@@ -168,7 +168,7 @@ export default function Dashboard() {
                 <button
                   key={section.id}
                   onClick={() => navigate(`/tracker/${section.id}`)}
-                  className="w-full flex items-center gap-4 px-5 py-3.5 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-left cursor-pointer"
+                  className="w-full flex items-center gap-4 px-5 py-3.5 hover:bg-gray-50 dark:hover:bg-gray-800/60 transition-colors text-left cursor-pointer"
                 >
                   <span className="text-xs font-mono text-gray-400 w-4 shrink-0">{section.id}</span>
                   <span className="text-sm text-gray-800 dark:text-gray-200 flex-1 min-w-0 truncate">{section.title}</span>
@@ -183,7 +183,7 @@ export default function Dashboard() {
                       aria-valuemin={0}
                       aria-valuemax={100}
                       aria-label={`${section.title}: ${s.assessed > 0 ? `${pct}% compliant` : 'not assessed'}`}
-                      className="w-24 h-1.5 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden"
+                      className="w-24 h-1.5 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden"
                     >
                       <div
                         className={`h-full rounded-full transition-all ${pct === 100 ? 'bg-green-500' : pct > 0 ? 'bg-blue-500' : 'bg-gray-200'}`}
@@ -230,21 +230,26 @@ function StatCard({
   color: 'green' | 'red' | 'amber'
 }) {
   const barColor = { green: 'bg-green-500', red: 'bg-red-400', amber: 'bg-amber-400' }[color]
+  const iconBg = {
+    green: 'bg-green-50 dark:bg-green-950/40',
+    red: 'bg-red-50 dark:bg-red-950/40',
+    amber: 'bg-amber-50 dark:bg-amber-950/40',
+  }[color]
   const pct = total > 0 ? (value / total) * 100 : 0
   return (
-    <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5">
-      <div className="flex items-center gap-2 mb-3">
+    <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm p-5">
+      <div className={`w-8 h-8 rounded-xl ${iconBg} flex items-center justify-center mb-3`}>
         {icon}
-        <span className="text-xs text-gray-500 dark:text-gray-400">{label}</span>
       </div>
-      <div className="text-2xl font-semibold text-gray-900 dark:text-white mb-2">{value}</div>
+      <div className="text-2xl font-semibold text-gray-900 dark:text-white mb-0.5">{value}</div>
+      <div className="text-xs text-gray-500 dark:text-gray-400 mb-3">{label}</div>
       <div
         role="progressbar"
         aria-valuenow={Math.round(pct)}
         aria-valuemin={0}
         aria-valuemax={100}
         aria-label={`${label}: ${Math.round(pct)}%`}
-        className="h-1 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden"
+        className="h-1 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden"
       >
         <div className={`h-full rounded-full ${barColor}`} style={{ width: `${pct}%` }} />
       </div>

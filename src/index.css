@@ -9,7 +9,13 @@
 body {
   margin: 0;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  background-color: #F0F5FF;
+}
+
+.dark body {
+  background-color: #030712;
 }
 
 @media (prefers-reduced-motion: reduce) {
