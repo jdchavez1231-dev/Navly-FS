@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Eye, EyeOff } from 'lucide-react'
+import { Eye, EyeOff, Mail } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 
 export default function Signup() {
@@ -14,6 +14,7 @@ export default function Signup() {
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [confirmSent, setConfirmSent] = useState(false)
 
   useEffect(() => { document.title = 'Create account — Navly FS' }, [])
 
@@ -33,13 +34,26 @@ export default function Signup() {
       },
     })
 
-    if (signUpError || !data.user) {
-      setError(signUpError?.message ?? 'Signup failed')
+    if (signUpError) {
+      setError(signUpError.message)
       setLoading(false)
       return
     }
 
-    // Create facility record
+    if (!data.user) {
+      setError('Signup failed. Please try again.')
+      setLoading(false)
+      return
+    }
+
+    // Email confirmation is ON — Supabase returns no session until confirmed
+    if (!data.session) {
+      setConfirmSent(true)
+      setLoading(false)
+      return
+    }
+
+    // Email confirmation is OFF — session is live, create records now
     const { data: facility, error: facilityError } = await supabase
       .from('facilities')
       .insert({ name: form.facilityName })
@@ -52,20 +66,19 @@ export default function Signup() {
       return
     }
 
-    // Create user record
-    await supabase.from('users').insert({
+    await supabase.from('users').upsert({
       id: data.user.id,
       facility_id: facility.id,
       full_name: form.fullName,
       email: form.email,
       role: 'admin',
-    })
+    }, { onConflict: 'id' })
 
     navigate('/onboarding', { state: { facilityId: facility.id } })
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+    <div className="min-h-screen flex items-center justify-center px-4" style={{ background: 'linear-gradient(145deg,#E8EFFF 0%,#F4F7FF 50%,#EBF2FF 100%)' }}>
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
           <div className="w-7 h-7 bg-blue-600 rounded-xl flex items-center justify-center mx-auto mb-3">
@@ -75,7 +88,21 @@ export default function Signup() {
           <p className="text-sm text-gray-500 mt-1">Create your account</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="bg-white border border-gray-200 rounded-xl p-6 space-y-4 shadow-sm">
+        {confirmSent ? (
+          <div className="bg-white rounded-2xl shadow-card p-8 text-center">
+            <div className="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <Mail className="w-7 h-7 text-blue-600" />
+            </div>
+            <h2 className="text-base font-semibold text-gray-900 mb-2">Check your email</h2>
+            <p className="text-sm text-gray-500 mb-1">We sent a confirmation link to</p>
+            <p className="text-sm font-medium text-gray-800 mb-5">{form.email}</p>
+            <p className="text-xs text-gray-400">Click the link in the email, then come back to sign in.</p>
+            <Link to="/login" className="mt-5 inline-block text-sm font-medium text-blue-600 hover:underline">
+              Go to sign in →
+            </Link>
+          </div>
+        ) : (
+        <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-card p-6 space-y-4">
           {error && (
             <div role="alert" className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
               {error}
@@ -157,10 +184,10 @@ export default function Signup() {
             {loading ? 'Creating account…' : 'Create account'}
           </button>
         </form>
-
+        )}
         <p className="text-center text-sm text-gray-500 mt-4">
           Already have an account?{' '}
-          <Link to="/login" className="text-[#0F6E56] hover:underline font-medium">
+          <Link to="/login" className="text-blue-600 hover:underline font-medium">
             Sign in
           </Link>
         </p>

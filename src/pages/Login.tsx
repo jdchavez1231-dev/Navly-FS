@@ -36,7 +36,7 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+    <div className="min-h-screen flex items-center justify-center px-4" style={{ background: 'linear-gradient(145deg,#E8EFFF 0%,#F4F7FF 50%,#EBF2FF 100%)' }}>
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
           <div className="w-7 h-7 bg-blue-600 rounded-xl flex items-center justify-center mx-auto mb-3">
@@ -46,7 +46,7 @@ export default function Login() {
           <p className="text-sm text-gray-500 mt-1">Sign in to your account</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="bg-white border border-gray-200 rounded-xl p-6 space-y-4 shadow-sm">
+        <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-card p-6 space-y-4">
           {error && (
             <div role="alert" className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
               {error}
@@ -102,7 +102,7 @@ export default function Login() {
 
         <p className="text-center text-sm text-gray-500 mt-4">
           Don't have an account?{' '}
-          <Link to="/signup" className="text-[#0F6E56] hover:underline font-medium">
+          <Link to="/signup" className="text-blue-600 hover:underline font-medium">
             Sign up
           </Link>
         </p>
