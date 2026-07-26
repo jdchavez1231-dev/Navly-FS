@@ -1,0 +1,115 @@
+I am building Navly — a B2B SaaS platform for food safety and audit
+readiness. Here is everything you need to know to help me continue building.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PRODUCT OVERVIEW
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Navly helps QA managers and food safety coordinators at small-to-mid-size
+food manufacturing facilities (10-200 employees) prepare for third-party
+audits. It replaces spreadsheets and binders with a centralized compliance
+platform that stays up to date with regulatory standards.
+
+Target user: QA Manager / Food Safety Coordinator
+Regulatory bodies: USDA (meat/poultry) and FDA (all other food)
+Standards supported: SQF Edition 9, BRCGS, FSSC 22000, Custom
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+MY BACKGROUND
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+I am an amateur vibe coder (Cursor + Claude + Gemini — no raw coding).
+I have 8+ years in USDA-regulated food manufacturing. I hold active
+certifications: HACCP, SQF Practitioner, BRCGS Internal Auditor,
+ServSafe Manager. I am the domain expert — all compliance logic in
+the app reflects real audit experience.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TECH STACK
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Build environment : Cursor IDE
+Frontend          : React + TypeScript + Tailwind CSS + Vite
+Routing           : React Router
+Backend + DB      : Supabase (Postgres, Auth, Storage)
+AI feature layer  : Claude API (SOP compliance checker)
+Payments          : Stripe
+Hosting           : Vercel
+Planning          : Claude at claude.ai (this tool)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+DATABASE SCHEMA (Supabase)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+facilities     : id, name, regulatory_body, active_standard,
+                 audit_date, subscription_status, created_at
+users          : id, facility_id, full_name, email, role (admin/viewer)
+checklists     : id, facility_id, standard, element_code,
+                 element_name, status, notes, updated_at
+sop_documents  : id, facility_id, file_name, file_url,
+                 mapped_standard, compliance_status, uploaded_at
+gap_reports    : id, sop_document_id, facility_id,
+                 gaps (JSON array), generated_at
+
+RLS (row-level security) is enabled on all tables.
+Users can only access rows where facility_id matches their own.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+MVP SCREENS (11 total)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Auth    : /login, /signup, /onboarding
+Core    : /dashboard, /checklists, /sop-library, /gap-report
+Settings: /settings (facility profile, standard selector,
+          team/users, billing)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+MVP FEATURES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1. Regulatory pathway selector (USDA or FDA on signup + settings)
+2. Audit readiness checklists (pre-seeded by standard, per facility)
+3. Standards auto-update (manual admin update in v1)
+4. SOP upload + Supabase Storage
+5. AI compliance checker (Claude API, returns JSON gap array)
+6. Gap report screen with PDF export
+7. Audit readiness score: (complete / total applicable) x 100
+8. Multi-user roles (admin vs viewer per facility)
+9. Stripe subscription billing
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+AI COMPLIANCE CHECKER — PROMPT TEMPLATE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+You are a certified food safety auditor with deep expertise in [STANDARD].
+Review the following SOP and compare it against element [ELEMENT_CODE]:
+[ELEMENT_NAME]. Return ONLY a valid JSON array. No explanation.
+Each object: { element_code, requirement, gap_description }.
+If fully compliant, return []. SOP text: [EXTRACTED TEXT]
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+BUILD ROADMAP — 12 STAGES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Stage 1  : Pre-build setup (Supabase, .env, Git, Vercel, Stripe)
+Stage 2  : Project scaffold (React + Vite + Tailwind + routing + auth)
+Stage 3  : Auth screens (login, signup, onboarding + DB seed)
+Stage 4  : Dashboard (readiness score, open items, countdown)
+Stage 5  : Checklist engine (pre-seeded, check/uncheck, notes, filter)
+Stage 6  : SOP library (upload, Supabase Storage, status badge)
+Stage 7  : AI compliance checker (Claude API call + gap_reports save)
+Stage 8  : Gap report screen (render gaps, export PDF)
+Stage 9  : Settings screens (facility, standard selector, users)
+Stage 10 : Stripe billing (Checkout, webhooks, feature gating)
+Stage 11 : Pre-launch QA (RLS, end-to-end test, mobile, real SOP test)
+Stage 12 : Deploy + go live (Vercel, domain, pilot customers)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CURRENT STATUS — UPDATE THIS AS YOU PROGRESS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Current stage    : [FILL IN — e.g. Stage 3]
+Last completed   : [FILL IN — e.g. Login and signup screens working]
+Current blocker  : [FILL IN — e.g. Onboarding checklist seed not triggering]
+Next task        : [FILL IN — e.g. Build onboarding step 2 standard selector]
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+HOW TO HELP ME
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+I build in Cursor using AI-generated code. When I ask for help:
+- Give me Cursor-ready prompts I can paste directly
+- Reference the exact table names and field names from the schema above
+- Push back if I try to skip a stage or build out of order
+- Flag any security issues immediately (RLS, exposed keys, etc.)
+- Keep responses actionable — I learn by doing, not reading
