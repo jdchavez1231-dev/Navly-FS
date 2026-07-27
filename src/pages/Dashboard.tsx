@@ -101,7 +101,7 @@ export default function Dashboard() {
             color="amber"
           />
           {daysToAudit !== null && daysToAudit >= 0 && (
-            <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-card p-5 flex flex-col items-center justify-center col-span-1">
+            <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-card dark:ring-1 dark:ring-white/10 p-5 flex flex-col items-center justify-center col-span-1">
               <CalendarDays className="w-5 h-5 text-blue-400 mb-1" />
               <div className="text-2xl font-semibold text-gray-900 dark:text-white">{daysToAudit}</div>
               <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Days to audit</div>
@@ -138,7 +138,7 @@ export default function Dashboard() {
 
         {/* Corrective actions summary */}
         {actions.length > 0 && (
-          <div className="mb-8 bg-white dark:bg-gray-900 rounded-2xl shadow-card overflow-hidden">
+          <div className="mb-8 bg-white dark:bg-gray-900 rounded-2xl shadow-card dark:ring-1 dark:ring-white/10 overflow-hidden">
             <div className="px-5 py-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
               <h2 className="text-sm font-semibold text-gray-900 dark:text-white">Corrective Actions</h2>
               <button onClick={() => navigate('/corrective-actions')} className="text-xs text-blue-600 hover:underline cursor-pointer">
@@ -162,7 +162,7 @@ export default function Dashboard() {
         )}
 
         {/* Section breakdown */}
-        <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-card overflow-hidden">
+        <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-card dark:ring-1 dark:ring-white/10 overflow-hidden">
           <div className="px-5 py-4 border-b border-gray-100 dark:border-gray-800">
             <h2 className="text-sm font-semibold text-gray-900 dark:text-white">Section breakdown</h2>
           </div>
@@ -267,7 +267,7 @@ function StatCard({
   }[color]
   const pct = total > 0 ? (value / total) * 100 : 0
   return (
-    <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-card p-5">
+    <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-card dark:ring-1 dark:ring-white/10 p-5">
       <div className={`w-8 h-8 rounded-xl ${iconBg} flex items-center justify-center mb-3`}>
         {icon}
       </div>

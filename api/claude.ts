@@ -20,6 +20,24 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     body: JSON.stringify(req.body),
   })
 
+  if (req.body?.stream) {
+    res.setHeader('Content-Type', 'text/event-stream')
+    res.setHeader('Cache-Control', 'no-cache')
+    res.setHeader('Connection', 'keep-alive')
+    const reader = upstream.body!.getReader()
+    const decoder = new TextDecoder()
+    try {
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+        res.write(decoder.decode(value, { stream: true }))
+      }
+    } finally {
+      res.end()
+    }
+    return
+  }
+
   const data = await upstream.json()
   return res.status(upstream.status).json(data)
 }

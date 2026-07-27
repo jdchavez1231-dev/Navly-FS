@@ -60,9 +60,24 @@ alter table gap_reports enable row level security;
 
 -- RLS policies
 create policy "users access own facility" on facilities
-  for all using (
+  for select using (
     id in (select facility_id from users where id = auth.uid())
   );
+
+create policy "users update own facility" on facilities
+  for update using (
+    id in (select facility_id from users where id = auth.uid())
+  );
+
+create policy "users delete own facility" on facilities
+  for delete using (
+    id in (select facility_id from users where id = auth.uid())
+  );
+
+-- Allows a newly signed-up authenticated user to create their facility
+-- (no users row exists yet at this point, so the select-based policy would block it)
+create policy "authenticated users can create facility" on facilities
+  for insert with check (auth.uid() is not null);
 
 create policy "users access own record" on users
   for all using (id = auth.uid());

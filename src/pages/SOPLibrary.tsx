@@ -6,7 +6,6 @@ import { supabase } from '../lib/supabase'
 import { useFacility } from '../hooks/useFacility'
 import { extractTextFromUrl } from '../lib/extractText'
 import { analyzeSOPWithClaude, generateSOPWithClaude, editSOPWithClaude } from '../lib/claudeApi'
-import type { SOPFormat } from '../lib/claudeApi'
 import { BRCGS_SECTIONS } from '../data/brcgs'
 import { generateSOPPDF } from '../lib/reportGenerator'
 import { loadFacilityProfile } from './Onboarding'
@@ -206,7 +205,7 @@ export default function SOPLibrary() {
           </div>
           <button
             onClick={() => setShowBuilder(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white text-sm font-medium rounded-lg transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
           >
             <Sparkles className="w-4 h-4" />
             Build SOP with AI
@@ -398,12 +397,6 @@ export default function SOPLibrary() {
 
 // ── SOP Builder Modal ──────────────────────────────────────────────────────────
 
-const FORMAT_OPTIONS: { id: SOPFormat; label: string; desc: string }[] = [
-  { id: 'concise', label: 'Concise', desc: '1–2 pages · Quick reference' },
-  { id: 'standard', label: 'Standard', desc: '2–4 pages · GFSI/BRCGS format' },
-  { id: 'iso', label: 'ISO / FSSC', desc: '3–5 pages · Full document control' },
-]
-
 function SOPBuilderModal({
   onClose,
   facilityId,
@@ -422,7 +415,6 @@ function SOPBuilderModal({
   const [context, setContext] = useState(
     profile?.allergens?.length ? `Allergens on site: ${profile.allergens.join(', ')}.${profile.products ? ' Products: ' + profile.products + '.' : ''}` : ''
   )
-  const [format, setFormat] = useState<SOPFormat>('standard')
   const [logoUrl, setLogoUrl] = useState<string | null>(null)
   const logoRef = useRef<HTMLInputElement>(null)
 
@@ -454,18 +446,18 @@ function SOPBuilderModal({
     setError('')
     setGenerating(true)
     setSaved(false)
+    setResult('')
+    setActiveTab('sop')
     try {
-      const text = await generateSOPWithClaude({
+      await generateSOPWithClaude({
         clauseId: selectedClause.id,
         clauseTitle: selectedClause.title,
         clauseDescription: selectedClause.description,
         sopType,
         facilityType,
         additionalContext: context,
-        format,
+        onChunk: (chunk) => setResult(prev => prev + chunk),
       })
-      setResult(text)
-      setActiveTab('sop')
     } catch (err: any) {
       setError(err.message ?? 'Generation failed.')
     } finally {
@@ -528,7 +520,7 @@ function SOPBuilderModal({
     await generateSOPPDF({ content: result, title: sopName, facilityName })
   }
 
-  const selectCls = 'w-full border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500'
+  const selectCls = 'w-full border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500'
   const labelCls = 'block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5'
 
   return (
@@ -538,15 +530,15 @@ function SOPBuilderModal({
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-700 shrink-0">
           <div className="flex items-center gap-2">
-            {result && (
-              <button onClick={() => { setResult(''); setSaved(false); setActiveTab('sop') }}
+            {(result || generating) && (
+              <button onClick={() => { setResult(''); setSaved(false); setActiveTab('sop'); setGenerating(false) }}
                 className="text-gray-400 hover:text-gray-600 mr-1" aria-label="Back to form">
                 <ChevronLeft className="w-5 h-5" />
               </button>
             )}
-            <Sparkles className="w-4 h-4 text-violet-500" />
+            <Sparkles className="w-4 h-4 text-blue-500" />
             <h2 className="text-base font-semibold text-gray-900 dark:text-white">
-              {result ? 'AI-Generated SOP' : 'Build SOP with AI'}
+              {result || generating ? 'AI-Generated SOP' : 'Build SOP with AI'}
             </h2>
           </div>
           <button onClick={onClose} aria-label="Close" className="text-gray-400 hover:text-gray-600">
@@ -555,7 +547,7 @@ function SOPBuilderModal({
         </div>
 
         {/* Tabs */}
-        {result && (
+        {result && !generating && (
           <div className="flex border-b border-gray-100 dark:border-gray-700 shrink-0">
             {([
               { id: 'sop', label: 'Preview', icon: BookOpen },
@@ -564,7 +556,7 @@ function SOPBuilderModal({
               <button key={tab.id} onClick={() => setActiveTab(tab.id)}
                 className={`flex items-center gap-1.5 px-5 py-2.5 text-sm font-medium border-b-2 transition-colors ${
                   activeTab === tab.id
-                    ? 'border-violet-500 text-violet-600'
+                    ? 'border-blue-500 text-blue-600'
                     : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
                 }`}>
                 <tab.icon className="w-3.5 h-3.5" />
@@ -576,26 +568,8 @@ function SOPBuilderModal({
 
         {/* Body */}
         <div className="flex-1 overflow-y-auto">
-          {!result ? (
+          {!generating && !result ? (
             <div className="px-6 py-5 space-y-5">
-
-              {/* Format picker */}
-              <div>
-                <label className={labelCls}>Format</label>
-                <div className="grid grid-cols-3 gap-2">
-                  {FORMAT_OPTIONS.map(f => (
-                    <button key={f.id} type="button" onClick={() => setFormat(f.id)}
-                      className={`text-left px-3 py-2.5 rounded-lg border text-sm transition-colors ${
-                        format === f.id
-                          ? 'border-violet-500 bg-violet-50 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300'
-                          : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500 text-gray-700 dark:text-gray-300'
-                      }`}>
-                      <div className="font-medium">{f.label}</div>
-                      <div className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">{f.desc}</div>
-                    </button>
-                  ))}
-                </div>
-              </div>
 
               {/* BRCGS clause */}
               <div>
@@ -659,24 +633,23 @@ function SOPBuilderModal({
                 <textarea value={context} onChange={e => setContext(e.target.value)}
                   placeholder="E.g. We handle peanuts as a major allergen. Cleaning is done by a third-party contractor…"
                   rows={3}
-                  className="w-full border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-violet-500 bg-gray-50 dark:bg-gray-700 dark:text-gray-100 text-gray-900" />
+                  className="w-full border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 dark:bg-gray-700 dark:text-gray-100 text-gray-900" />
               </div>
 
               {error && <div role="alert" className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{error}</div>}
-              {generating && (
-                <div role="status" className="flex items-center gap-2 text-sm text-gray-500 bg-violet-50 dark:bg-violet-900/20 border border-violet-200 dark:border-violet-800 rounded-lg px-4 py-3">
-                  <Loader2 className="w-4 h-4 animate-spin text-violet-500 shrink-0" aria-hidden="true" />
-                  Writing your SOP… this takes 15–30 seconds
-                </div>
-              )}
             </div>
 
           ) : activeTab === 'sop' ? (
-            /* ── Rendered SOP ── */
-            <div className="px-8 py-6 bg-white dark:bg-gray-900">
+            /* ── Rendered SOP (streaming or complete) ── */
+            <div className="px-8 py-6 bg-white dark:bg-gray-900 min-h-full">
               {logoUrl && (
                 <div className="mb-6 pb-4 border-b border-gray-200 dark:border-gray-700">
                   <img src={logoUrl} alt="Company logo" className="h-12 w-auto object-contain" />
+                </div>
+              )}
+              {!result && generating && (
+                <div className="flex items-center gap-2 text-sm text-gray-400 py-8 justify-center">
+                  <Loader2 className="w-4 h-4 animate-spin" />Writing your SOP…
                 </div>
               )}
               <div className="prose prose-sm prose-gray dark:prose-invert max-w-none
@@ -694,6 +667,11 @@ function SOPBuilderModal({
                 prose-hr:border-gray-200 dark:prose-hr:border-gray-700 prose-hr:my-4">
                 <ReactMarkdown>{result}</ReactMarkdown>
               </div>
+              {generating && (
+                <span className="inline-flex items-center gap-1.5 text-xs text-blue-500 animate-pulse mt-4">
+                  <Loader2 className="w-3 h-3 animate-spin" />Writing…
+                </span>
+              )}
             </div>
 
           ) : (
@@ -703,15 +681,15 @@ function SOPBuilderModal({
               <textarea value={editInstruction} onChange={e => setEditInstruction(e.target.value)}
                 placeholder='E.g. "Shorten the procedure to 5 steps" or "Add a step about allergen bin labeling"'
                 rows={4}
-                className="w-full border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2.5 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-violet-500 bg-gray-50 dark:bg-gray-700 dark:text-gray-100 text-gray-900" />
+                className="w-full border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2.5 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 dark:bg-gray-700 dark:text-gray-100 text-gray-900" />
               {error && <div role="alert" className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{error}</div>}
               {editing && (
-                <div className="flex items-center gap-2 text-sm text-gray-500 bg-violet-50 dark:bg-violet-900/20 border border-violet-200 dark:border-violet-800 rounded-lg px-4 py-3">
-                  <Loader2 className="w-4 h-4 animate-spin text-violet-500 shrink-0" />Applying edit…
+                <div className="flex items-center gap-2 text-sm text-gray-500 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg px-4 py-3">
+                  <Loader2 className="w-4 h-4 animate-spin text-blue-500 shrink-0" />Applying edit…
                 </div>
               )}
               <button onClick={handleEdit} disabled={!editInstruction.trim() || editing}
-                className="w-full flex items-center justify-center gap-2 bg-violet-600 hover:bg-violet-700 disabled:opacity-40 text-white py-2.5 rounded-lg text-sm font-medium transition-colors">
+                className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-40 text-white py-2.5 rounded-lg text-sm font-medium transition-colors">
                 {editing ? <><Loader2 className="w-4 h-4 animate-spin" />Applying…</> : <><MessageSquare className="w-4 h-4" />Apply Edit</>}
               </button>
             </div>
@@ -720,15 +698,15 @@ function SOPBuilderModal({
 
         {/* Footer */}
         <div className="px-6 py-4 border-t border-gray-100 dark:border-gray-700 shrink-0">
-          {!result ? (
+          {!generating && !result ? (
             <div className="flex gap-3">
               <button onClick={onClose} disabled={generating}
                 className="flex-1 border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-40 transition-colors">
                 Cancel
               </button>
               <button onClick={handleGenerate} disabled={!canGenerate || generating}
-                className="flex-1 flex items-center justify-center gap-2 bg-violet-600 hover:bg-violet-700 disabled:opacity-40 text-white py-2 rounded-lg text-sm font-medium transition-colors">
-                {generating ? <><Loader2 className="w-4 h-4 animate-spin" />Generating…</> : <><Sparkles className="w-4 h-4" />Generate SOP</>}
+                className="flex-1 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-40 text-white py-2 rounded-lg text-sm font-medium transition-colors">
+                <Sparkles className="w-4 h-4" />Generate SOP
               </button>
             </div>
           ) : (
@@ -741,17 +719,17 @@ function SOPBuilderModal({
                 className="flex items-center gap-1.5 px-3 py-2 border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                 <Download className="w-3.5 h-3.5" />Download
               </button>
-              <button onClick={handleSave} disabled={saving || saved}
+              <button onClick={handleSave} disabled={saving || saved || generating}
                 className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                   saved
                     ? 'bg-green-50 text-green-700 border border-green-200'
-                    : 'bg-emerald-500 hover:bg-emerald-600 text-white disabled:opacity-50'
+                    : 'bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50'
                 }`}>
                 <Save className="w-3.5 h-3.5" />
                 {saving ? 'Saving…' : saved ? 'Saved to Library' : 'Save to Library'}
               </button>
               <button onClick={() => { setResult(''); setSaved(false); setActiveTab('sop'); setError('') }}
-                className="ml-auto px-3 py-2 bg-violet-600 hover:bg-violet-700 text-white rounded-lg text-sm font-medium transition-colors">
+                className="ml-auto px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors">
                 New SOP
               </button>
             </div>
